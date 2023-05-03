@@ -35,8 +35,13 @@ class Tooltip extends PureComponent {
         this.hasHoverSupport = DeviceCapabilities.hasHoverSupport();
 
         this.getWrapperPosition = this.getWrapperPosition.bind(this);
-        this.showTooltip = this.showTooltip.bind(this);
-        this.hideTooltip = this.hideTooltip.bind(this);
+        this.showTooltip = _.debounce(this.showTooltip.bind(this), 200, false);
+        this.hideTooltip = _.debounce(this.hideTooltip.bind(this), 200, false);
+        this.handleMouseMove = this.handleMouseMove.bind(this);
+    }
+
+    handleMouseMove(event) {
+        this.showTooltip();
     }
 
     componentDidUpdate(prevProps) {
@@ -151,6 +156,7 @@ class Tooltip extends PureComponent {
             <View
                 ref={el => this.wrapperView = el}
                 onBlur={this.hideTooltip}
+                onMouseMove={this.handleMouseMove}
                 focusable={this.props.focusable}
                 style={this.props.containerStyles}
             >
