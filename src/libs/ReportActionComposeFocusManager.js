@@ -3,6 +3,7 @@ import React from 'react';
 
 const composerRef = React.createRef();
 let focusCallback = null;
+let focusActionItemCallback = null;
 
 /**
  * Register a callback to be called when focus is requested.
@@ -10,8 +11,17 @@ let focusCallback = null;
  *
  * @param {Function} callback callback to register
  */
-function onComposerFocus(callback) {
-    focusCallback = callback;
+function onComposerFocus(callback, isActionItem = false) {
+    if(!isActionItem)
+    {
+        focusCallback = null;
+        focusCallback = callback;
+    }
+    else
+    {
+        focusActionItemCallback = null;
+        focusActionItemCallback = callback;
+    }
 }
 
 /**
@@ -19,19 +29,31 @@ function onComposerFocus(callback) {
  *
  */
 function focus() {
-    if (!_.isFunction(focusCallback)) {
+    if (_.isFunction(focusActionItemCallback)) {
+        console.log("[ReportActionComposeFocusManager][focus]");
+        focusActionItemCallback();
         return;
     }
-
-    focusCallback();
+    if (_.isFunction(focusCallback)) {
+        console.log("[ReportActionCompose][focus]");
+        focusCallback();
+        return;
+    }
 }
 
 /**
  * Clear the registered focus callback
  *
  */
-function clear() {
-    focusCallback = null;
+function clear(isActionItem = false) {
+    if(isActionItem)
+    {
+        focusCallback = null;
+    }
+    else
+    {
+        focusActionItemCallback = null;
+    }
 }
 
 /**

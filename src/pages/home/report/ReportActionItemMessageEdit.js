@@ -176,6 +176,7 @@ class ReportActionItemMessageEdit extends React.Component {
         this.debouncedSaveDraft.cancel();
         Report.saveReportActionDraft(this.props.reportID, this.props.action.reportActionID, '');
         toggleReportActionComposeView(true, this.props.isSmallScreenWidth);
+        ReportActionComposeFocusManager.clear(true);
         ReportActionComposeFocusManager.focus();
 
         // Scroll to the last comment after editing to make sure the whole comment is clearly visible in the report.
@@ -305,6 +306,9 @@ class ReportActionItemMessageEdit extends React.Component {
                                 style={[styles.textInputCompose, styles.flex1, styles.bgTransparent]}
                                 onFocus={() => {
                                     this.setState({isFocused: true});
+                                    ReportActionComposeFocusManager.onComposerFocus(() => {
+                                        this.textInput.focus();
+                                    },true);                                    
                                     ReportScrollManager.scrollToIndex({animated: true, index: this.props.index}, true);
                                     toggleReportActionComposeView(false, this.props.isSmallScreenWidth);
                                 }}

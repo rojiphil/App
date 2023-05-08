@@ -262,7 +262,8 @@ class ReportActionCompose extends React.Component {
         // open creates a jarring and broken UX.
         if (this.willBlurTextInputOnTapOutside && this.props.isFocused
             && prevProps.modal.isVisible && !this.props.modal.isVisible) {
-            this.focus();
+            console.log("[ReportActionCompose][componentDidUpdate]ReportActionComposeFocusManager.focus");
+            ReportActionComposeFocusManager.focus();
         }
 
         if (this.props.isComposerFullSize !== prevProps.isComposerFullSize) {
@@ -283,6 +284,7 @@ class ReportActionCompose extends React.Component {
     }
 
     componentWillUnmount() {
+        ReportActionComposeFocusManager.clear(true);
         ReportActionComposeFocusManager.clear();
 
         if (this.unsubscribeEscapeKey) {
@@ -301,6 +303,10 @@ class ReportActionCompose extends React.Component {
      * @param {Boolean} shouldHighlight
      */
     setIsFocused(shouldHighlight) {
+        if(shouldHighlight)
+        {
+            ReportActionComposeFocusManager.clear(true);
+        }
         this.setState({isFocused: shouldHighlight});
     }
 
