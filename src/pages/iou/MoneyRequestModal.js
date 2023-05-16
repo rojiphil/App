@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import React, {useState, useEffect, useCallback, useMemo} from 'react';
-import {View} from 'react-native';
+import {View, Keyboard} from 'react-native';
 import PropTypes from 'prop-types';
 import lodashGet from 'lodash/get';
 import {withOnyx} from 'react-native-onyx';
@@ -188,7 +188,7 @@ const MoneyRequestModal = (props) => {
             }
 
             setPreviousStepIndex(currentStepIndex);
-            setCurrentStepIndex(stepIndex);
+            setCurrentStepIndexAfterKeyboardRemoval(stepIndex);
         },
         [currentStepIndex, steps.length],
     );
@@ -202,7 +202,7 @@ const MoneyRequestModal = (props) => {
         }
 
         setPreviousStepIndex(currentStepIndex);
-        setCurrentStepIndex(currentStepIndex - 1);
+        setCurrentStepIndexAfterKeyboardRemoval(currentStepIndex - 1);
     }, [currentStepIndex, previousStepIndex]);
 
     /**
@@ -221,8 +221,23 @@ const MoneyRequestModal = (props) => {
         }
 
         setPreviousStepIndex(currentStepIndex);
-        setCurrentStepIndex(currentStepIndex + 1);
+        setCurrentStepIndexAfterKeyboardRemoval(currentStepIndex + 1);
     }, [currentStepIndex, previousStepIndex, navigateToStep, steps]);
+
+    const setCurrentStepIndexAfterKeyboardRemoval = useCallback((newStepIndex) => {
+        if(Keyboard.isVisible())
+        {
+            const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+                setCurrentStepIndex(newStepIndex);
+                keyboardDidHideListener.remove();
+            });
+            Keyboard.dismiss();
+        }
+        else
+        {
+            setCurrentStepIndex(newStepIndex);
+        }
+    }, [setCurrentStepIndex, Keyboard]);
 
     /**
      * Checks if user has a GOLD wallet then creates a paid IOU report on the fly
