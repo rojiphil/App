@@ -26,6 +26,7 @@ import * as ReportScrollManager from '../../libs/ReportScrollManager';
 import useOnNetworkReconnect from '../../components/hooks/useOnNetworkReconnect';
 import * as DeviceCapabilities from '../../libs/DeviceCapabilities';
 import * as CurrencyUtils from '../../libs/CurrencyUtils';
+import withWindowDimensions, {windowDimensionsPropTypes} from '../../components/withWindowDimensions';
 
 /**
  * A modal used for requesting money, splitting bills or sending money.
@@ -69,6 +70,7 @@ const propTypes = {
     }),
 
     ...withLocalizePropTypes,
+    ...windowDimensionsPropTypes,
 };
 
 const defaultProps = {
@@ -104,12 +106,20 @@ const MoneyRequestModal = (props) => {
 
     const [previousStepIndex, setPreviousStepIndex] = useState(-1);
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
+    const [newStepIndex, setNewStepIndex] = useState(-1);
     const [selectedOptions, setSelectedOptions] = useState(
         ReportUtils.isPolicyExpenseChat(props.report)
             ? OptionsListUtils.getPolicyExpenseReportOptions(props.report)
             : OptionsListUtils.getParticipantsOptions(props.report, props.personalDetails),
     );
     const [amount, setAmount] = useState(0);
+    const debouncedSetCurrentIndex = useCallback(
+        _.debounce((newStepIndex) => {
+            console.log('debouncedSetCurrentStepIndex[' + newStepIndex + ']');
+            setCurrentStepIndex(newStepIndex);
+        }, 300),
+        [setCurrentStepIndex],
+    );
 
     useEffect(() => {
         PersonalDetails.openMoneyRequestModalPage();
@@ -117,6 +127,16 @@ const MoneyRequestModal = (props) => {
         IOU.setMoneyRequestDescription('');
         // eslint-disable-next-line react-hooks/exhaustive-deps -- props.currentUserPersonalDetails will always exist from Onyx and we don't want this effect to run again
     }, []);
+
+    useEffect(() => {
+        console.log('windowheight[' + props.windowHeight + '],currentStepIndex[' + currentStepIndex + '],newStepIndex[' + newStepIndex + ']');
+        if (newStepIndex !== -1 && currentStepIndex !== newStepIndex) {
+            debouncedSetCurrentIndex(newStepIndex);
+        }
+        return () => {
+            debouncedSetCurrentIndex.cancel();
+        };
+    }, [props.windowHeight, newStepIndex]);
 
     // User came back online, so let's refetch the currency details based on location
     useOnNetworkReconnect(PersonalDetails.openMoneyRequestModalPage);
@@ -224,20 +244,14 @@ const MoneyRequestModal = (props) => {
         setCurrentStepIndexAfterKeyboardRemoval(currentStepIndex + 1);
     }, [currentStepIndex, previousStepIndex, navigateToStep, steps]);
 
-    const setCurrentStepIndexAfterKeyboardRemoval = useCallback((newStepIndex) => {
-        if(Keyboard.isVisible())
-        {
-            const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
-                setCurrentStepIndex(newStepIndex);
-                keyboardDidHideListener.remove();
-            });
+    const setCurrentStepIndexAfterKeyboardRemoval = useCallback(
+        (newStepIndex) => {
+            console.log('newStepIndex[' + newStepIndex + ']');
+            setNewStepIndex(newStepIndex);
             Keyboard.dismiss();
-        }
-        else
-        {
-            setCurrentStepIndex(newStepIndex);
-        }
-    }, [setCurrentStepIndex, Keyboard]);
+        },
+        [setNewStepIndex, Keyboard],
+    );
 
     /**
      * Checks if user has a GOLD wallet then creates a paid IOU report on the fly
@@ -401,6 +415,7 @@ MoneyRequestModal.defaultProps = defaultProps;
 export default compose(
     withLocalize,
     withCurrentUserPersonalDetails,
+    withWindowDimensions,
     withOnyx({
         report: {
             key: ({route}) => `${ONYXKEYS.COLLECTION.REPORT}${lodashGet(route, 'params.reportID', '')}`,
