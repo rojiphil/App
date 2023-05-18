@@ -27,8 +27,8 @@ import useOnNetworkReconnect from '../../components/hooks/useOnNetworkReconnect'
 import * as DeviceCapabilities from '../../libs/DeviceCapabilities';
 import * as CurrencyUtils from '../../libs/CurrencyUtils';
 import withWindowDimensions, {windowDimensionsPropTypes} from '../../components/withWindowDimensions';
-import getOperatingSystem from '../../libs/getOperatingSystem';
 import themeColors from '../../styles/themes/default';
+import * as Browser from '../../libs/Browser';
 
 /**
  * A modal used for requesting money, splitting bills or sending money.
@@ -117,7 +117,7 @@ const MoneyRequestModal = (props) => {
     const [amount, setAmount] = useState(0);
     const debouncedSetCurrentIndex = useCallback(
         _.debounce((newStepIndex) => {
-            //console.log('Calling setCurrentStepIndex['+ newStepIndex +'],OperatingSystem');
+            //console.log('Calling setCurrentStepIndex[' + newStepIndex + ']');
             setCurrentStepIndex(newStepIndex);
         }, 200),
         [setCurrentStepIndex],
@@ -134,8 +134,8 @@ const MoneyRequestModal = (props) => {
         //console.log('windowheight[' + props.windowHeight + '],currentStepIndex[' + currentStepIndex + '],newStepIndex[' + newStepIndex + ']');
 
         if (newStepIndex !== -1 && currentStepIndex !== newStepIndex) {
-            if(getOperatingSystem() !== CONST.OS.IOS && getOperatingSystem() !== CONST.OS.ANDROID)
-            {
+            // Check this only for mobile browsers
+            if (Browser.isMobile()) {
                 //console.log('useEffect:debouncedSetCurrentStepIndex[' + newStepIndex + ']');
                 debouncedSetCurrentIndex(newStepIndex);
             }
@@ -149,24 +149,19 @@ const MoneyRequestModal = (props) => {
         //console.log('currentStepIndex[' + currentStepIndex + '],newStepIndex[' + newStepIndex + ']');
         if (newStepIndex !== -1 && currentStepIndex !== newStepIndex) {
             //console.log('useEffect[newStepIndex]:debouncedSetCurrentStepIndex[' + newStepIndex + ']');
-            if(getOperatingSystem() !== CONST.OS.IOS && getOperatingSystem() !== CONST.OS.ANDROID)
-            {
+            if (!Browser.isMobile()) {
                 debouncedSetCurrentIndex(newStepIndex);
-            }
-            else
-            {
-                if(Keyboard.isVisible && Keyboard.isVisible())
-                {
-                    //console.log("Time["+new Date().getTime()+"]:Native Devices:Keyboard is visible.Let's wait for it to go");
+            } else {
+                if (Keyboard.isVisible && Keyboard.isVisible()) {
+                    //console.log('Time[' + new Date().getTime() + "]:Native Devices:Keyboard is visible.Let's wait for it to go");
                     const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
-                        //console.log('Time['+new Date().getTime()+']:KeyboardHide:debouncedSetCurrentStepIndex[' + newStepIndex + ']');
+                        //console.log('Time[' + new Date().getTime() + ']:KeyboardHide:debouncedSetCurrentStepIndex[' + newStepIndex + ']');
                         setCurrentStepIndex(newStepIndex);
                         keyboardDidHideListener.remove();
-                    }); 
-                }
-                else{
+                    });
+                } else {
                     debouncedSetCurrentIndex(newStepIndex);
-                }    
+                }
             }
             Keyboard.dismiss();
         }
@@ -174,7 +169,7 @@ const MoneyRequestModal = (props) => {
             debouncedSetCurrentIndex.cancel();
         };
     }, [newStepIndex]);
-    
+
     // User came back online, so let's refetch the currency details based on location
     useOnNetworkReconnect(PersonalDetails.openMoneyRequestModalPage);
 
@@ -358,14 +353,14 @@ const MoneyRequestModal = (props) => {
             {({didScreenTransitionEnd, safeAreaPaddingBottomStyle}) => (
                 <>
                     <View style={[styles.pRelative, styles.flex1]}>
-                        {didScreenTransitionEnd && (newStepIndex !== -1 && currentStepIndex !== newStepIndex) && (
+                        {didScreenTransitionEnd && newStepIndex !== -1 && currentStepIndex !== newStepIndex && (
                             <View style={[styles.flex1, styles.alignItemsCenter, styles.justifyContentCenter]}>
                                 <ActivityIndicator
                                     color={themeColors.spinner}
                                     size="large"
                                 />
                             </View>
-                        )}                        
+                        )}
                         {!didScreenTransitionEnd && <FullScreenLoadingIndicator />}
                         {didScreenTransitionEnd && !(newStepIndex !== -1 && currentStepIndex !== newStepIndex) && (
                             <>
