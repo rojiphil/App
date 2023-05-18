@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import React, {useState, useEffect, useCallback, useMemo} from 'react';
-import {View, Keyboard} from 'react-native';
+import {ActivityIndicator, View, Keyboard} from 'react-native';
 import PropTypes from 'prop-types';
 import lodashGet from 'lodash/get';
 import {withOnyx} from 'react-native-onyx';
@@ -27,6 +27,8 @@ import useOnNetworkReconnect from '../../components/hooks/useOnNetworkReconnect'
 import * as DeviceCapabilities from '../../libs/DeviceCapabilities';
 import * as CurrencyUtils from '../../libs/CurrencyUtils';
 import withWindowDimensions, {windowDimensionsPropTypes} from '../../components/withWindowDimensions';
+import getOperatingSystem from '../../libs/getOperatingSystem';
+import themeColors from '../../styles/themes/default';
 
 /**
  * A modal used for requesting money, splitting bills or sending money.
@@ -115,9 +117,9 @@ const MoneyRequestModal = (props) => {
     const [amount, setAmount] = useState(0);
     const debouncedSetCurrentIndex = useCallback(
         _.debounce((newStepIndex) => {
-            console.log('debouncedSetCurrentStepIndex[' + newStepIndex + ']');
+            //console.log('Calling setCurrentStepIndex['+ newStepIndex +'],OperatingSystem');
             setCurrentStepIndex(newStepIndex);
-        }, 300),
+        }, 200),
         [setCurrentStepIndex],
     );
 
@@ -129,15 +131,50 @@ const MoneyRequestModal = (props) => {
     }, []);
 
     useEffect(() => {
-        console.log('windowheight[' + props.windowHeight + '],currentStepIndex[' + currentStepIndex + '],newStepIndex[' + newStepIndex + ']');
+        //console.log('windowheight[' + props.windowHeight + '],currentStepIndex[' + currentStepIndex + '],newStepIndex[' + newStepIndex + ']');
+
         if (newStepIndex !== -1 && currentStepIndex !== newStepIndex) {
-            debouncedSetCurrentIndex(newStepIndex);
+            if(getOperatingSystem() !== CONST.OS.IOS && getOperatingSystem() !== CONST.OS.ANDROID)
+            {
+                //console.log('useEffect:debouncedSetCurrentStepIndex[' + newStepIndex + ']');
+                debouncedSetCurrentIndex(newStepIndex);
+            }
         }
         return () => {
             debouncedSetCurrentIndex.cancel();
         };
-    }, [props.windowHeight, newStepIndex]);
+    }, [props.windowHeight]);
 
+    useEffect(() => {
+        //console.log('currentStepIndex[' + currentStepIndex + '],newStepIndex[' + newStepIndex + ']');
+        if (newStepIndex !== -1 && currentStepIndex !== newStepIndex) {
+            //console.log('useEffect[newStepIndex]:debouncedSetCurrentStepIndex[' + newStepIndex + ']');
+            if(getOperatingSystem() !== CONST.OS.IOS && getOperatingSystem() !== CONST.OS.ANDROID)
+            {
+                debouncedSetCurrentIndex(newStepIndex);
+            }
+            else
+            {
+                if(Keyboard.isVisible && Keyboard.isVisible())
+                {
+                    //console.log("Time["+new Date().getTime()+"]:Native Devices:Keyboard is visible.Let's wait for it to go");
+                    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+                        //console.log('Time['+new Date().getTime()+']:KeyboardHide:debouncedSetCurrentStepIndex[' + newStepIndex + ']');
+                        setCurrentStepIndex(newStepIndex);
+                        keyboardDidHideListener.remove();
+                    }); 
+                }
+                else{
+                    debouncedSetCurrentIndex(newStepIndex);
+                }    
+            }
+            Keyboard.dismiss();
+        }
+        return () => {
+            debouncedSetCurrentIndex.cancel();
+        };
+    }, [newStepIndex]);
+    
     // User came back online, so let's refetch the currency details based on location
     useOnNetworkReconnect(PersonalDetails.openMoneyRequestModalPage);
 
@@ -208,7 +245,7 @@ const MoneyRequestModal = (props) => {
             }
 
             setPreviousStepIndex(currentStepIndex);
-            setCurrentStepIndexAfterKeyboardRemoval(stepIndex);
+            setNewStepIndex(stepIndex);
         },
         [currentStepIndex, steps.length],
     );
@@ -222,7 +259,7 @@ const MoneyRequestModal = (props) => {
         }
 
         setPreviousStepIndex(currentStepIndex);
-        setCurrentStepIndexAfterKeyboardRemoval(currentStepIndex - 1);
+        setNewStepIndex(currentStepIndex - 1);
     }, [currentStepIndex, previousStepIndex]);
 
     /**
@@ -241,17 +278,8 @@ const MoneyRequestModal = (props) => {
         }
 
         setPreviousStepIndex(currentStepIndex);
-        setCurrentStepIndexAfterKeyboardRemoval(currentStepIndex + 1);
+        setNewStepIndex(currentStepIndex + 1);
     }, [currentStepIndex, previousStepIndex, navigateToStep, steps]);
-
-    const setCurrentStepIndexAfterKeyboardRemoval = useCallback(
-        (newStepIndex) => {
-            console.log('newStepIndex[' + newStepIndex + ']');
-            setNewStepIndex(newStepIndex);
-            Keyboard.dismiss();
-        },
-        [setNewStepIndex, Keyboard],
-    );
 
     /**
      * Checks if user has a GOLD wallet then creates a paid IOU report on the fly
@@ -330,8 +358,16 @@ const MoneyRequestModal = (props) => {
             {({didScreenTransitionEnd, safeAreaPaddingBottomStyle}) => (
                 <>
                     <View style={[styles.pRelative, styles.flex1]}>
+                        {didScreenTransitionEnd && (newStepIndex !== -1 && currentStepIndex !== newStepIndex) && (
+                            <View style={[styles.flex1, styles.alignItemsCenter, styles.justifyContentCenter]}>
+                                <ActivityIndicator
+                                    color={themeColors.spinner}
+                                    size="large"
+                                />
+                            </View>
+                        )}                        
                         {!didScreenTransitionEnd && <FullScreenLoadingIndicator />}
-                        {didScreenTransitionEnd && (
+                        {didScreenTransitionEnd && !(newStepIndex !== -1 && currentStepIndex !== newStepIndex) && (
                             <>
                                 {currentStep === Steps.MoneyRequestAmount && (
                                     <AnimatedStep
