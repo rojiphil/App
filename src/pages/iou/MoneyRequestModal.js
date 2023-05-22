@@ -355,10 +355,6 @@ const MoneyRequestModal = (props) => {
                     <View style={[styles.pRelative, styles.flex1]}>
                         {didScreenTransitionEnd && newStepIndex !== -1 && currentStepIndex !== newStepIndex && (
                             <View style={[styles.flex1, styles.alignItemsCenter, styles.justifyContentCenter]}>
-                                <ActivityIndicator
-                                    color={themeColors.spinner}
-                                    size="large"
-                                />
                             </View>
                         )}
                         {!didScreenTransitionEnd && <FullScreenLoadingIndicator />}
