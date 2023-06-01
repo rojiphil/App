@@ -163,6 +163,8 @@ class ReportActionCompose extends React.Component {
         this.updateComment = this.updateComment.bind(this);
         this.debouncedSaveReportComment = _.debounce(this.debouncedSaveReportComment.bind(this), 1000, false);
         this.debouncedBroadcastUserIsTyping = _.debounce(this.debouncedBroadcastUserIsTyping.bind(this), 100, true);
+        this.debouncedPredictiveTextHandler = _.debounce(this.debouncedPredictiveTextHandler.bind(this), 200, false);
+        this.prevSubmittedComment = '';
         this.triggerHotkeyActions = this.triggerHotkeyActions.bind(this);
         this.submitForm = this.submitForm.bind(this);
         this.setIsFocused = this.setIsFocused.bind(this);
@@ -207,6 +209,7 @@ class ReportActionCompose extends React.Component {
             isFocused: this.shouldFocusInputOnScreenFocus && !this.props.modal.isVisible && !this.props.modal.willAlertModalBecomeVisible && this.props.shouldShowComposeInput,
             isFullComposerAvailable: props.isComposerFullSize,
             textInputShouldClear: false,
+            shouldManagePredictiveText: false,
             isCommentEmpty: props.comment.length === 0,
             isMenuVisible: false,
             isDraggingOver: false,
@@ -249,7 +252,7 @@ class ReportActionCompose extends React.Component {
         }
     }
 
-    componentDidUpdate(prevProps) {
+    componentDidUpdate(prevProps, prevStates) {
         const sidebarOpened = !prevProps.isDrawerOpen && this.props.isDrawerOpen;
         if (sidebarOpened) {
             ComposerActions.setShouldShowComposeInput(true);
@@ -266,6 +269,21 @@ class ReportActionCompose extends React.Component {
             this.setMaxLines();
         }
 
+        if(prevStates.value !== this.state.value || this.state.value !== this.comment)
+        {
+            if(this.state.shouldManagePredictiveText)
+            {
+                //console.log("PREDICTIVE_HANDLER, prevStates.value["+prevStates.value+"],this.state.value["+this.state.value+"],prevSubmittedComment["+this.prevSubmittedComment+"],this.comment["+this.comment+"],");
+                this.debouncedPredictiveTextHandler(this.state.value);
+            }
+            else
+            {
+                //console.log("UPDATECOMMENT (EXEC-1), this.comment["+this.comment+"],this.state.value["+this.state.value+"],propscomment,PREV["+prevProps.comment+"],CUR["+ this.props.comment+"]");
+                this.updateComment(this.state.value);
+            }
+            return;   
+        }
+
         // Value state does not have the same value as comment props when the comment gets changed from another tab.
         // In this case, we should synchronize the value between tabs.
         const shouldSyncComment = prevProps.comment !== this.props.comment && this.state.value !== this.props.comment;
@@ -273,9 +291,11 @@ class ReportActionCompose extends React.Component {
         // As the report IDs change, make sure to update the composer comment as we need to make sure
         // we do not show incorrect data in there (ie. draft of message from other report).
         if (this.props.report.reportID === prevProps.report.reportID && !shouldSyncComment) {
+            //console.log("UPDATECOMMENT (SKIP), this.comment["+this.comment+"],this.state.value["+this.state.value+"],propscomment,PREV["+prevProps.comment+"],CUR["+ this.props.comment+"]");
             return;
         }
 
+        //console.log("UPDATECOMMENT (EXEC-2), this.comment["+this.comment+"],this.state.value["+this.state.value+"],propscomment,PREV["+prevProps.comment+"],CUR["+ this.props.comment+"]");
         this.updateComment(this.props.comment);
     }
 
@@ -323,6 +343,14 @@ class ReportActionCompose extends React.Component {
     setIsFullComposerAvailable(isFullComposerAvailable) {
         this.setState({isFullComposerAvailable});
     }
+
+    setShouldManagePredictiveText(shouldManage) {
+        //console.log("setShouldManagePredictiveText["+shouldManage+"]");
+        if(!shouldManage)
+            this.prevSubmittedComment = "";
+        this.setState({shouldManagePredictiveText: shouldManage});
+    }
+
 
     /**
      * Updates the should clear state of the composer
@@ -728,6 +756,26 @@ class ReportActionCompose extends React.Component {
         Report.broadcastUserIsTyping(this.props.reportID);
     }
 
+    debouncedPredictiveTextHandler(newComment) {
+        // If true, let us reset the value
+        const isPredictiveText = newComment.startsWith(this.prevSubmittedComment);
+        //console.log("isPredictiveText["+ isPredictiveText +"],shouldManagePredictiveText["+this.state.shouldManagePredictiveText+"],prevSubmittedComment["+this.prevSubmittedComment+"],this.state.value["+newComment+"]"); 
+        if(this.state.shouldManagePredictiveText)
+        {
+            if(isPredictiveText || newComment.length === 0)
+            {
+                const newCmnt = newComment.substr(this.prevSubmittedComment.length);
+                //console.log("PredictiveText=>UpdateComment["+newCmnt+"]");
+                this.updateComment(newCmnt.length!==0 ? newCmnt : newComment);    
+            }
+            else
+            {
+                //console.log("Non Predictive Text=>Ignore");
+                this.setShouldManagePredictiveText(false);
+            }
+        }
+    }
+
     /**
      * Update the value of the comment in Onyx
      *
@@ -736,6 +784,7 @@ class ReportActionCompose extends React.Component {
      */
     updateComment(comment, shouldDebounceSaveComment) {
         const {text: newComment = '', emojis = []} = EmojiUtils.replaceEmojis(comment, this.props.isSmallScreenWidth, this.props.preferredSkinTone);
+        //console.log("comment["+comment+"],textinputValue["+this.textInput.value+"],newComment["+newComment+"]");
 
         if (!_.isEmpty(emojis)) {
             User.updateFrequentlyUsedEmojis(EmojiUtils.getFrequentlyUsedEmojis(emojis));
@@ -851,8 +900,10 @@ class ReportActionCompose extends React.Component {
             return '';
         }
 
-        this.updateComment('');
+        this.prevSubmittedComment = trimmedComment;
         this.setTextInputShouldClear(true);
+        this.setShouldManagePredictiveText(true);
+        this.setState({value: ''});
         if (this.props.isComposerFullSize) {
             Report.setIsComposerFullSize(this.props.reportID, false);
         }
@@ -890,6 +941,7 @@ class ReportActionCompose extends React.Component {
         this.debouncedSaveReportComment.cancel();
 
         const comment = this.prepareCommentAndResetComposer();
+        //console.log("SUBMITFORM:comment["+comment+"],textinputValue["+this.textInput.value+"]");
         if (!comment) {
             return;
         }
@@ -1079,7 +1131,10 @@ class ReportActionCompose extends React.Component {
                                                 textAlignVertical="top"
                                                 placeholder={inputPlaceholder}
                                                 placeholderTextColor={themeColors.placeholderText}
-                                                onChangeText={(comment) => this.updateComment(comment, true)}
+                                                onChangeText={(comment) => {
+                                                    //console.log("onChangeText["+comment+"]");
+                                                    this.setState({value: comment});
+                                                }}
                                                 onKeyPress={this.triggerHotkeyActions}
                                                 style={[styles.textInputCompose, this.props.isComposerFullSize ? styles.textInputFullCompose : styles.flex4]}
                                                 maxLines={this.state.maxLines}
