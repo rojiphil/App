@@ -163,7 +163,7 @@ class ReportActionCompose extends React.Component {
         this.updateComment = this.updateComment.bind(this);
         this.debouncedSaveReportComment = _.debounce(this.debouncedSaveReportComment.bind(this), 1000, false);
         this.debouncedBroadcastUserIsTyping = _.debounce(this.debouncedBroadcastUserIsTyping.bind(this), 100, true);
-        this.debouncedPredictiveTextHandler = _.debounce(this.debouncedPredictiveTextHandler.bind(this), 200, false);
+        this.debouncedQuickTextHandler = _.debounce(this.debouncedQuickTextHandler.bind(this), 200, false);
         this.prevSubmittedComment = '';
         this.triggerHotkeyActions = this.triggerHotkeyActions.bind(this);
         this.submitForm = this.submitForm.bind(this);
@@ -209,7 +209,7 @@ class ReportActionCompose extends React.Component {
             isFocused: this.shouldFocusInputOnScreenFocus && !this.props.modal.isVisible && !this.props.modal.willAlertModalBecomeVisible && this.props.shouldShowComposeInput,
             isFullComposerAvailable: props.isComposerFullSize,
             textInputShouldClear: false,
-            shouldManagePredictiveText: false,
+            shouldManageQuickText: false,
             isCommentEmpty: props.comment.length === 0,
             isMenuVisible: false,
             isDraggingOver: false,
@@ -271,10 +271,10 @@ class ReportActionCompose extends React.Component {
 
         if(prevStates.value !== this.state.value || this.state.value !== this.comment)
         {
-            if(this.state.shouldManagePredictiveText)
+            if(this.state.shouldManageQuickText)
             {
-                //console.log("PREDICTIVE_HANDLER, prevStates.value["+prevStates.value+"],this.state.value["+this.state.value+"],prevSubmittedComment["+this.prevSubmittedComment+"],this.comment["+this.comment+"],");
-                this.debouncedPredictiveTextHandler(this.state.value);
+                //console.log("QUICKTEXT_HANDLER, prevStates.value["+prevStates.value+"],this.state.value["+this.state.value+"],prevSubmittedComment["+this.prevSubmittedComment+"],this.comment["+this.comment+"],");
+                this.debouncedQuickTextHandler(this.state.value);
             }
             else
             {
@@ -344,11 +344,11 @@ class ReportActionCompose extends React.Component {
         this.setState({isFullComposerAvailable});
     }
 
-    setShouldManagePredictiveText(shouldManage) {
-        //console.log("setShouldManagePredictiveText["+shouldManage+"]");
+    setShouldManageQuickText(shouldManage) {
+        //console.log("setShouldManageQuickText["+shouldManage+"]");
         if(!shouldManage)
             this.prevSubmittedComment = "";
-        this.setState({shouldManagePredictiveText: shouldManage});
+        this.setState({shouldManageQuickText: shouldManage});
     }
 
 
@@ -756,22 +756,22 @@ class ReportActionCompose extends React.Component {
         Report.broadcastUserIsTyping(this.props.reportID);
     }
 
-    debouncedPredictiveTextHandler(newComment) {
+    debouncedQuickTextHandler(newComment) {
         // If true, let us reset the value
-        const isPredictiveText = newComment.startsWith(this.prevSubmittedComment);
-        //console.log("isPredictiveText["+ isPredictiveText +"],shouldManagePredictiveText["+this.state.shouldManagePredictiveText+"],prevSubmittedComment["+this.prevSubmittedComment+"],this.state.value["+newComment+"]"); 
-        if(this.state.shouldManagePredictiveText)
+        const isQuickText = newComment.startsWith(this.prevSubmittedComment);
+        //console.log("isQuickText["+ isQuickText +"],shouldManageQuickText["+this.state.shouldManageQuickText+"],prevSubmittedComment["+this.prevSubmittedComment+"],this.state.value["+newComment+"]"); 
+        if(this.state.shouldManageQuickText)
         {
-            if(isPredictiveText || newComment.length === 0)
+            if(isQuickText || newComment.length === 0)
             {
                 const newCmnt = newComment.substr(this.prevSubmittedComment.length);
-                //console.log("PredictiveText=>UpdateComment["+newCmnt+"]");
+                //console.log("QuickText=>UpdateComment["+newCmnt+"]");
                 this.updateComment(newCmnt.length!==0 ? newCmnt : newComment);    
             }
             else
             {
-                //console.log("Non Predictive Text=>Ignore");
-                this.setShouldManagePredictiveText(false);
+                //console.log("Non Quick Text=>Ignore");
+                this.setShouldManageQuickText(false);
             }
         }
     }
@@ -902,7 +902,7 @@ class ReportActionCompose extends React.Component {
 
         this.prevSubmittedComment = trimmedComment;
         this.setTextInputShouldClear(true);
-        this.setShouldManagePredictiveText(true);
+        this.setShouldManageQuickText(true);
         this.setState({value: ''});
         if (this.props.isComposerFullSize) {
             Report.setIsComposerFullSize(this.props.reportID, false);
