@@ -224,6 +224,7 @@ function completeTask(taskReportID, parentReportID, taskTitle) {
         },
         {optimisticData, successData, failureData},
     );
+    Report.openReport(taskReportID);
 }
 
 /**
@@ -286,6 +287,7 @@ function reopenTask(taskReportID, parentReportID, taskTitle) {
         },
         {optimisticData, successData, failureData},
     );
+    Report.openReport(taskReportID);
 }
 
 /**
