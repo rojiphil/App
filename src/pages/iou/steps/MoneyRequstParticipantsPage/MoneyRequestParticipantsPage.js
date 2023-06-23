@@ -1,4 +1,4 @@
-import React, {useEffect, useRef} from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import {View} from 'react-native';
 import PropTypes from 'prop-types';
 import {withOnyx} from 'react-native-onyx';
@@ -48,6 +48,7 @@ function MoneyRequestParticipantsPage(props) {
     const prevMoneyRequestId = useRef(props.iou.id);
     const iouType = useRef(lodashGet(props.route, 'params.iouType', ''));
     const reportID = useRef(lodashGet(props.route, 'params.reportID', ''));
+    const [prepareForNavigation, setPrepareForNavigation] = useState(false);
 
     const navigateToNextStep = () => {
         Navigation.navigate(ROUTES.getMoneyRequestConfirmationRoute(iouType.current, reportID.current));
@@ -55,6 +56,10 @@ function MoneyRequestParticipantsPage(props) {
 
     const navigateBack = (forceFallback = false) => {
         Navigation.goBack(ROUTES.getMoneyRequestRoute(iouType.current, reportID.current), forceFallback);
+    };
+
+    const prepareForNavigationAndNavigateBack = () => {
+        setPrepareForNavigation(true);
     };
 
     useEffect(() => {
@@ -92,7 +97,7 @@ function MoneyRequestParticipantsPage(props) {
                 <View style={styles.flex1}>
                     <HeaderWithBackButton
                         title={props.translate('iou.cash')}
-                        onBackButtonPress={navigateBack}
+                        onBackButtonPress={prepareForNavigationAndNavigateBack}
                     />
                     {iouType.current === CONST.IOU.MONEY_REQUEST_TYPE.SPLIT ? (
                         <MoneyRequestParticipantsSplitSelector
@@ -100,6 +105,8 @@ function MoneyRequestParticipantsPage(props) {
                             participants={props.iou.participants}
                             onAddParticipants={IOU.setMoneyRequestParticipants}
                             safeAreaPaddingBottomStyle={safeAreaPaddingBottomStyle}
+                            prepareForNavigation={prepareForNavigation}
+                            onPrepareNavigationComplete={navigateBack}
                         />
                     ) : (
                         <MoneyRequestParticipantsSelector
@@ -107,6 +114,8 @@ function MoneyRequestParticipantsPage(props) {
                             onAddParticipants={IOU.setMoneyRequestParticipants}
                             safeAreaPaddingBottomStyle={safeAreaPaddingBottomStyle}
                             iouType={iouType.current}
+                            prepareForNavigation={prepareForNavigation}
+                            onPrepareNavigationComplete={navigateBack}
                         />
                     )}
                 </View>

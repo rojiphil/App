@@ -44,6 +44,12 @@ const propTypes = {
     /** padding bottom style of safe area */
     safeAreaPaddingBottomStyle: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.object), PropTypes.object]),
 
+    /** Used to request OptionsSelector to dismiss keyboard */
+    prepareForNavigation: PropTypes.bool,
+
+    /** Function to execute once the keyboard is dismissed */
+    onPrepareNavigationComplete: PropTypes.func,
+
     ...withLocalizePropTypes,
 };
 
@@ -52,7 +58,9 @@ const defaultProps = {
     betas: [],
     personalDetails: {},
     reports: {},
+    prepareForNavigation: false,
     safeAreaPaddingBottomStyle: {},
+    onPrepareNavigationComplete: () => {},
 };
 
 class MoneyRequestParticipantsSplitSelector extends Component {
@@ -224,6 +232,8 @@ class MoneyRequestParticipantsSplitSelector extends Component {
                     textInputLabel={this.props.translate('optionsSelector.nameEmailOrPhoneNumber')}
                     safeAreaPaddingBottomStyle={this.props.safeAreaPaddingBottomStyle}
                     shouldShowOptions={isOptionsDataReady}
+                    prepareForNavigation={this.props.prepareForNavigation}
+                    onPrepareNavigationComplete={this.props.onPrepareNavigationComplete}
                 />
             </View>
         );

@@ -2,7 +2,7 @@ import _ from 'underscore';
 import lodashGet from 'lodash/get';
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import {View} from 'react-native';
+import {View, Keyboard, InteractionManager} from 'react-native';
 import Button from '../Button';
 import FixedFooter from '../FixedFooter';
 import OptionsList from '../OptionsList';
@@ -125,6 +125,12 @@ class BaseOptionsSelector extends Component {
     }
 
     componentDidUpdate(prevProps) {
+        if (prevProps.prepareForNavigation !== this.props.prepareForNavigation) {
+            InteractionManager.runAfterInteractions(() => {
+                this.props.onPrepareNavigationComplete();
+            });
+        }
+
         if (_.isEqual(this.props.sections, prevProps.sections)) {
             return;
         }
@@ -298,6 +304,7 @@ class BaseOptionsSelector extends Component {
                 label={this.props.textInputLabel}
                 onChangeText={this.props.onChangeText}
                 placeholder={this.props.placeholderText}
+                editable={!this.props.prepareForNavigation}
                 maxLength={this.props.maxLength}
                 keyboardType={this.props.keyboardType}
                 onBlur={(e) => {
