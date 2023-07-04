@@ -106,12 +106,6 @@ const propTypes = {
 
     /** Whether to use default padding and flex styles for children */
     shouldUseStyleForChildren: PropTypes.bool,
-
-    /** If true, the the text input would be made non-editable to trigger keyboard dismissal. Defaults to false */
-    prepareForNavigation: PropTypes.bool,
-
-    /** Function to execute once the keyboard is dismissed */
-    onPrepareNavigationComplete: PropTypes.func,
 };
 
 const defaultProps = {
@@ -142,8 +136,6 @@ const defaultProps = {
     shouldShowTextInput: true,
     onChangeText: () => {},
     shouldUseStyleForChildren: true,
-    prepareForNavigation: false,
-    onPrepareNavigationComplete: () => {},
 };
 
 export {propTypes, defaultProps};

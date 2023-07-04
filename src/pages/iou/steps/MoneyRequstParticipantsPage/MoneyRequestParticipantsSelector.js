@@ -34,12 +34,6 @@ const propTypes = {
     /** The type of IOU report, i.e. bill, request, send */
     iouType: PropTypes.string.isRequired,
 
-    /** Used to request OptionsSelector to dismiss keyboard */
-    prepareForNavigation: PropTypes.bool,
-
-    /** Function to execute once the keyboard is dismissed */
-    onPrepareNavigationComplete: PropTypes.func,
-
     ...withLocalizePropTypes,
 };
 
@@ -48,8 +42,6 @@ const defaultProps = {
     personalDetails: {},
     reports: {},
     betas: [],
-    prepareForNavigation: false,
-    onPrepareNavigationComplete: () => {},
 };
 
 class MoneyRequestParticipantsSelector extends Component {
@@ -171,9 +163,7 @@ class MoneyRequestParticipantsSelector extends Component {
                 boldStyle
                 safeAreaPaddingBottomStyle={this.props.safeAreaPaddingBottomStyle}
                 shouldShowOptions={isOptionsDataReady}
-                prepareForNavigation={this.props.prepareForNavigation}
-                onPrepareNavigationComplete={this.props.onPrepareNavigationComplete}
-        />
+            />
         );
     }
 }
