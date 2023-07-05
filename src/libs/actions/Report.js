@@ -247,8 +247,6 @@ function addActions(reportID, text = '', file) {
 
     const prevVisibleMessageText = ReportActionsUtils.getLastVisibleMessageText(reportID);
     const lastCommentText = ReportUtils.formatReportLastMessageText(lastAction.message[0].text);
-    const actionType = file ? "attachment" : "comment";
-    console.log("addActions["+ actionType +"],newComment["+lastCommentText+"],failureComment["+prevVisibleMessageText+"]");
 
     const optimisticReport = {
         lastVisibleActionCreated: currentTime,
