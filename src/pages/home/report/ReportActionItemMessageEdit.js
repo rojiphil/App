@@ -125,6 +125,7 @@ function ReportActionItemMessageEdit(props) {
 
             // Show the main composer when the focused message is deleted from another client
             // to prevent the main composer stays hidden until we swtich to another chat.
+            console.log("focusedMessageDeletionFromAnotherClient[setShouldShowComposeInput(true)]");
             ComposerActions.setShouldShowComposeInput(true);
         };
     }, []);
@@ -199,6 +200,7 @@ function ReportActionItemMessageEdit(props) {
     const deleteDraft = useCallback(() => {
         debouncedSaveDraft.cancel();
         Report.saveReportActionDraft(props.reportID, props.action.reportActionID, '');
+        console.log("deleteDraft[setShouldShowComposeInput(true)]");
         ComposerActions.setShouldShowComposeInput(true);
         ReportActionComposeFocusManager.focus();
 
@@ -320,6 +322,7 @@ function ReportActionItemMessageEdit(props) {
                             onFocus={() => {
                                 setIsFocused(true);
                                 reportScrollManager.scrollToIndex({animated: true, index: props.index}, true);
+                                console.log("onFocus[setShouldShowComposeInput(false)]");
                                 ComposerActions.setShouldShowComposeInput(false);
                             }}
                             onBlur={(event) => {

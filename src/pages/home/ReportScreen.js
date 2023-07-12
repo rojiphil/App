@@ -150,6 +150,7 @@ class ReportScreen extends React.Component {
         });
 
         this.fetchReportIfNeeded();
+        console.log("ReportScreen[componentDidMount][setShouldShowComposeInput(true)]");
         ComposerActions.setShouldShowComposeInput(true);
     }
 
@@ -169,6 +170,7 @@ class ReportScreen extends React.Component {
         }
 
         this.fetchReportIfNeeded();
+        console.log("ReportScreen[componentDidUpdate][setShouldShowComposeInput(true)]");
         ComposerActions.setShouldShowComposeInput(true);
     }
 
