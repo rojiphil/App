@@ -202,6 +202,7 @@ function ReportActionItemMessageEdit(props) {
         Report.saveReportActionDraft(props.reportID, props.action.reportActionID, '');
         console.log("deleteDraft[setShouldShowComposeInput(true)]");
         ComposerActions.setShouldShowComposeInput(true);
+        console.log("MessageEdit, deleteDraft[RACFocusMgr.focus]");
         ReportActionComposeFocusManager.focus();
 
         // Scroll to the last comment after editing to make sure the whole comment is clearly visible in the report.

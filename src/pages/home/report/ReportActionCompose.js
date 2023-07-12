@@ -232,9 +232,10 @@ class ReportActionCompose extends React.Component {
         // TODO: we should clean up this convoluted code and instead move focus management to something like ReportFooter.js or another higher up component
         ReportActionComposeFocusManager.onComposerFocus(() => {
             if (!this.willBlurTextInputOnTapOutside || !this.props.isFocused) {
+                console.log("ComposeFocusIgnored[this.focus(false)]");
                 return;
             }
-
+            console.log("ComposeFocusInitiated[this.focus(false)]");
             this.focus(false);
         });
 
@@ -275,6 +276,7 @@ class ReportActionCompose extends React.Component {
     }
 
     componentWillUnmount() {
+        console.log("ReportActionCompose,componentWillUnmount[RACFMgr.clear]");
         ReportActionComposeFocusManager.clear();
     }
 
@@ -344,6 +346,7 @@ class ReportActionCompose extends React.Component {
      * @memberof ReportActionCompose
      */
     setTextInputRef(el) {
+        console.log("ReportActionCompose,setTextInputRef[RACFocusMgr.composerRef.current]");
         ReportActionComposeFocusManager.composerRef.current = el;
         this.textInput = el;
     }

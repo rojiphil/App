@@ -119,6 +119,7 @@ export default [
         onPress: (closePopover, {reportAction, reportID}) => {
             if (closePopover) {
                 hideContextMenu(false, () => {
+                    console.log("replyInThread[RACFocusMgr.focus]");
                     ReportActionComposeFocusManager.focus();
                     Report.navigateToAndOpenChildReport(lodashGet(reportAction, 'childReportID', '0'), reportAction, reportID);
                 });
@@ -137,6 +138,7 @@ export default [
         shouldShow: (type) => type === CONTEXT_MENU_TYPES.LINK,
         onPress: (closePopover, {selection}) => {
             Clipboard.setString(selection);
+            console.log("copyURLToClipboard[RACFocusMgr.focus]");
             hideContextMenu(true, ReportActionComposeFocusManager.focus);
         },
         getDescription: (selection) => selection,
@@ -149,6 +151,7 @@ export default [
         shouldShow: (type) => type === CONTEXT_MENU_TYPES.EMAIL,
         onPress: (closePopover, {selection}) => {
             Clipboard.setString(selection.replace('mailto:', ''));
+            console.log("copyEmailToClipboard[RACFocusMgr.focus]");
             hideContextMenu(true, ReportActionComposeFocusManager.focus);
         },
         getDescription: (selection) => selection.replace('mailto:', ''),
@@ -191,6 +194,7 @@ export default [
                 Clipboard.setString(messageHtml);
             }
             if (closePopover) {
+                console.log("copyToClipboard[RACFocusMgr.focus]");
                 hideContextMenu(true, ReportActionComposeFocusManager.focus);
             }
         },
@@ -215,6 +219,7 @@ export default [
                 const reportActionID = parseInt(lodashGet(reportAction, 'reportActionID'), 10);
                 Clipboard.setString(`${environmentURL}/r/${reportID}/${reportActionID}`);
             });
+            console.log("copyLink[RACFocusMgr.focus]");
             hideContextMenu(true, ReportActionComposeFocusManager.focus);
         },
         getDescription: () => {},
@@ -229,6 +234,7 @@ export default [
         onPress: (closePopover, {reportAction, reportID}) => {
             Report.markCommentAsUnread(reportID, reportAction.created);
             if (closePopover) {
+                console.log("markAsUnread[RACFocusMgr.focus]");
                 hideContextMenu(true, ReportActionComposeFocusManager.focus);
             }
         },
@@ -243,6 +249,7 @@ export default [
         onPress: (closePopover, {reportID}) => {
             Report.readNewestAction(reportID);
             if (closePopover) {
+                console.log("markAsRead[RACFocusMgr.focus]");
                 hideContextMenu(true, ReportActionComposeFocusManager.focus);
             }
         },
@@ -298,6 +305,7 @@ export default [
         onPress: (closePopover, {reportID}) => {
             Report.togglePinnedState(reportID, false);
             if (closePopover) {
+                console.log("pin[RACFocusMgr.focus]");
                 hideContextMenu(false, ReportActionComposeFocusManager.focus);
             }
         },
@@ -311,6 +319,7 @@ export default [
         onPress: (closePopover, {reportID}) => {
             Report.togglePinnedState(reportID, true);
             if (closePopover) {
+                console.log("unPin[RACFocusMgr.focus]");
                 hideContextMenu(false, ReportActionComposeFocusManager.focus);
             }
         },
