@@ -311,6 +311,8 @@ class BaseOptionsSelector extends Component {
                 ref={(el) => (this.textInput = el)}
                 value={this.props.value}
                 label={this.props.textInputLabel}
+                accessibilityLabel={this.props.textInputLabel}
+                accessibilityRole={CONST.ACCESSIBILITY_ROLE.TEXT}
                 onChangeText={this.props.onChangeText}
                 placeholder={this.props.placeholderText}
                 editable={!this.state.disableTextBox}
