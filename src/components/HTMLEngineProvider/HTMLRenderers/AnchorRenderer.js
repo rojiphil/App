@@ -34,6 +34,7 @@ function AnchorRenderer(props) {
     const internalExpensifyPath =
         hasExpensifyOrigin && !attrPath.startsWith(CONFIG.EXPENSIFY.CONCIERGE_URL_PATHNAME) && !attrPath.startsWith(CONFIG.EXPENSIFY.DEVPORTAL_URL_PATHNAME) && attrPath;
     const navigateToLink = () => {
+        console.log("Inside[navigateToLink]");
         // There can be messages from Concierge with links to specific NewDot reports. Those URLs look like this:
         // https://www.expensify.com.dev/newdotreport?reportID=3429600449838908 and they have a target="_blank" attribute. This is so that when a user is on OldDot,
         // clicking on the link will open the chat in NewDot. However, when a user is in NewDot and clicks on the concierge link, the link needs to be handled differently.
@@ -42,6 +43,7 @@ function AnchorRenderer(props) {
         if (hasExpensifyOrigin && attrHref.indexOf('newdotreport?reportID=') > -1) {
             const reportID = attrHref.split('newdotreport?reportID=').pop();
             const reportRoute = ROUTES.getReportRoute(reportID);
+            console.log("navigateTo[Report]");
             Navigation.navigate(reportRoute);
             return;
         }
@@ -49,6 +51,7 @@ function AnchorRenderer(props) {
         // If we are handling a New Expensify link then we will assume this should be opened by the app internally. This ensures that the links are opened internally via react-navigation
         // instead of in a new tab or with a page refresh (which is the default behavior of an anchor tag)
         if (internalNewExpensifyPath) {
+            console.log("navigateTo["+internalNewExpensifyPath+"]");
             Navigation.navigate(internalNewExpensifyPath);
             return;
         }
@@ -56,6 +59,7 @@ function AnchorRenderer(props) {
         // If we are handling an old dot Expensify link we need to open it with openOldDotLink() so we can navigate to it with the user already logged in.
         // As attachments also use expensify.com we don't want it working the same as links.
         if (internalExpensifyPath && !isAttachment) {
+            console.log("navigateTo,OLDPATH["+internalExpensifyPath+"]");
             Link.openOldDotLink(internalExpensifyPath);
             return;
         }
@@ -63,6 +67,7 @@ function AnchorRenderer(props) {
     };
 
     if (!HTMLEngineUtils.isInsideComment(props.tnode)) {
+        console.log("navigateTo[!HTMLEngineUtils.isInsideComment]");
         // This is not a comment from a chat, the AnchorForCommentsOnly uses a Pressable to create a context menu on right click.
         // We don't have this behaviour in other links in NewDot
         // TODO: We should use TextLink, but I'm leaving it as Text for now because TextLink breaks the alignment in Android.
@@ -77,6 +82,7 @@ function AnchorRenderer(props) {
     }
 
     if (isAttachment) {
+        console.log("navigateTo[isAttachment]");
         return (
             <AnchorForAttachmentsOnly
                 source={tryResolveUrlFromApiRoot(attrHref)}
@@ -85,6 +91,7 @@ function AnchorRenderer(props) {
         );
     }
 
+    console.log("navigateTo[FINAL RETURN]");
     return (
         <AnchorForCommentsOnly
             href={attrHref}

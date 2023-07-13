@@ -109,6 +109,8 @@ function NavigationRoot(props) {
         if (!state) {
             return;
         }
+        console.log("NavigationRoot[State]");
+        console.dir(state);
         navigationStateRef.current = state;
         updateCurrentReportID(state);
         parseAndLogRoute(state);

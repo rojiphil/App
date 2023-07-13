@@ -52,19 +52,24 @@ const getTopmostReportId = (state = navigationRef.getState()) => originalGetTopm
  * @returns {Number}
  */
 const getActiveRouteIndex = function (route, index) {
+    console.log("Inside[getActiveRouteIndex["+index+"]]");
+    console.dir(route);
     if (route.routes) {
+        console.log("route.routes");
         const childActiveRoute = route.routes[route.index || 0];
         return getActiveRouteIndex(childActiveRoute, route.index || 0);
     }
 
     if (route.state && route.state.routes) {
+        console.log("route.state");
         const childActiveRoute = route.state.routes[route.state.index || 0];
         return getActiveRouteIndex(childActiveRoute, route.state.index || 0);
     }
 
-    if (route.name === NAVIGATORS.RIGHT_MODAL_NAVIGATOR) {
-        return 0;
-    }
+    // if (route.name === NAVIGATORS.RIGHT_MODAL_NAVIGATOR) {
+    //     console.log("NAVIGATORS.RIGHT_MODAL_NAVIGATOR");
+    //     return 0;
+    // }
 
     return index;
 };
@@ -97,12 +102,15 @@ function navigate(route = ROUTES.HOME, type) {
  * @param {Bool} shouldPopToTop - Should we navigate to LHN on back press
  */
 function goBack(fallbackRoute = ROUTES.HOME, shouldEnforceFallback = false, shouldPopToTop = false) {
+    console.log("Inside[goBack],fallbackRoute["+fallbackRoute+"],shouldEnforceFallback["+shouldEnforceFallback+"]");
     if (!canNavigate('goBack')) {
+        console.log("!canNavigate");
         return;
     }
 
     if (shouldPopToTop) {
         if (shouldPopAllStateOnUP) {
+            console.log("shouldPopAllStateOnUP");
             shouldPopAllStateOnUP = false;
             navigationRef.current.dispatch(StackActions.popToTop());
             return;
@@ -110,15 +118,17 @@ function goBack(fallbackRoute = ROUTES.HOME, shouldEnforceFallback = false, shou
     }
 
     if (!navigationRef.current.canGoBack()) {
+        console.log("[Navigation] Unable to go back");
         Log.hmmm('[Navigation] Unable to go back');
         return;
     }
 
     if (shouldEnforceFallback || (!getActiveRouteIndex(navigationRef.current.getState()) && fallbackRoute)) {
+        console.log("fallbackRoute, UP");
         navigate(fallbackRoute, 'UP');
         return;
     }
-
+    console.log(".current.goBack");
     navigationRef.current.goBack();
 }
 
