@@ -16,7 +16,6 @@ import KeyboardShortcut from '../../libs/KeyboardShortcut';
 import {propTypes as optionsSelectorPropTypes, defaultProps as optionsSelectorDefaultProps} from './optionsSelectorPropTypes';
 import setSelection from '../../libs/setSelection';
 import compose from '../../libs/compose';
-import ScreenWrapperContext from '../ScreenWrapper/ScreenWrapperContext';
 
 const propTypes = {
     /** Whether we should wait before focusing the TextInput, useful when using transitions on Android */
@@ -65,19 +64,6 @@ class BaseOptionsSelector extends Component {
     }
 
     componentDidMount() {
-        console.log('Resetting onPrepareForNavigation');
-        const onPrepareNavigationCustom = () => {
-            console.log('onPrepareForNavigation[BaseOptionsSelector-Implementation][Started]');
-            return new Promise((resolve) => {
-                this.setState({disableTextBox: true}, () => {
-                    InteractionManager.runAfterInteractions(() => {
-                        console.log('onPrepareForNavigation[BaseOptionsSelector-Implementation][Completed]');
-                        resolve();
-                    });
-                });
-            });
-        };
-        this.context.overrideOnPrepareForNavigation(onPrepareNavigationCustom);
         const enterConfig = CONST.KEYBOARD_SHORTCUTS.ENTER;
         this.unsubscribeEnter = KeyboardShortcut.subscribe(
             enterConfig.shortcutKey,
@@ -406,6 +392,5 @@ class BaseOptionsSelector extends Component {
 
 BaseOptionsSelector.defaultProps = defaultProps;
 BaseOptionsSelector.propTypes = propTypes;
-BaseOptionsSelector.contextType = ScreenWrapperContext;
 
 export default compose(withLocalize, withNavigationFocus)(BaseOptionsSelector);

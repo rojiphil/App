@@ -22,7 +22,6 @@ import participantPropTypes from './participantPropTypes';
 import CONST from '../CONST';
 import PressableWithoutFeedback from './Pressable/PressableWithoutFeedback';
 import PinButton from './PinButton';
-import ScreenWrapperContext from './ScreenWrapper/ScreenWrapperContext';
 
 const propTypes = {
     /** Title of the Header */
@@ -177,16 +176,7 @@ class HeaderWithBackButton extends Component {
                                     if (this.props.isKeyboardShown) {
                                         Keyboard.dismiss();
                                     }
-                                    if (this.context && this.context.onPrepareForNavigation) {
-                                        console.log('HeaderWithBackButton[=>onPrepareForNavigation]');
-                                        this.context.onPrepareForNavigation().then(() => {
-                                            console.log('Calling onBackButtonPress');
-                                            this.props.onBackButtonPress();
-                                        });
-                                    } else {
-                                        console.log('HeaderWithBackButton[=>onBackButtonPress]');
-                                        this.props.onBackButtonPress();
-                                    }
+                                    this.props.onBackButtonPress();
                                 }}
                                 style={[styles.touchableButtonImage]}
                                 accessibilityRole={CONST.ACCESSIBILITY_ROLE.BUTTON}
@@ -276,6 +266,5 @@ class HeaderWithBackButton extends Component {
 
 HeaderWithBackButton.propTypes = propTypes;
 HeaderWithBackButton.defaultProps = defaultProps;
-HeaderWithBackButton.contextType = ScreenWrapperContext;
 
 export default compose(withLocalize, withDelayToggleButtonState, withKeyboardState)(HeaderWithBackButton);

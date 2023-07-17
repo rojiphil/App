@@ -1,4 +1,4 @@
-import {Keyboard, View, PanResponder} from 'react-native';
+import {Keyboard, View, PanResponder, InteractionManager} from 'react-native';
 import React from 'react';
 import _ from 'underscore';
 import lodashGet from 'lodash/get';
@@ -32,12 +32,7 @@ class ScreenWrapper extends React.Component {
 
         this.state = {
             didScreenTransitionEnd: false,
-            onPrepareNavigation: () => {
-                console.log('onPrepareForNavigation[Default Implementation]');
-                return new Promise((resolve) => {
-                    resolve();
-                });
-            },
+            isHideKeyboard: false,
         };
     }
 
@@ -47,6 +42,7 @@ class ScreenWrapper extends React.Component {
             if (lodashGet(event, 'data.closing')) {
                 return;
             }
+            this.setState({isHideKeyboard:false});
             this.setState({didScreenTransitionEnd: true});
             this.props.onEntryTransitionEnd();
         });
@@ -55,11 +51,22 @@ class ScreenWrapper extends React.Component {
         // also we need to have generic control in future - to prevent closing keyboard for some rare cases in which beforeRemove has limitations
         // described here https://reactnavigation.org/docs/preventing-going-back/#limitations
         if (this.props.shouldDismissKeyboardBeforeClose) {
-            this.beforeRemoveSubscription = this.props.navigation.addListener('beforeRemove', () => {
+            this.beforeRemoveSubscription = this.props.navigation.addListener('beforeRemove', (e) => {
+                // console.log("ScreenWrapper,beforeRemove:isKeyboardShown["+this.props.isKeyboardShown+"]");
                 if (!this.props.isKeyboardShown) {
                     return;
                 }
                 Keyboard.dismiss();
+                this.setState({isHideKeyboard:true});
+                // Prevent default behavior of leaving the screen
+                e.preventDefault();
+                // console.log("DISMISS KEYBOARD[STARTED]");
+                const interactionManager = InteractionManager.runAfterInteractions;
+                interactionManager().then(() => {
+                    // console.log("All Interactions are done");
+                    this.props.navigation.dispatch(e.data.action);
+                });
+                // console.log("DISMISS KEYBOARD[AWAITING COMPLETION]");
             });
         }
     }
@@ -95,8 +102,7 @@ class ScreenWrapper extends React.Component {
         return (
             <ScreenWrapperContext.Provider
                 value={{
-                    onPrepareForNavigation: this.state.onPrepareNavigation,
-                    overrideOnPrepareForNavigation: this.overrideOnPrepareForNavigation,
+                    isHideKeyboard: this.state.isHideKeyboard,
                 }}
             >
                 <SafeAreaConsumer>

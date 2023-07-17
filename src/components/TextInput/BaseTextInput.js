@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import React, {useState, useRef, useEffect, useCallback} from 'react';
+import React, {useState, useRef, useEffect, useCallback, useContext} from 'react';
 import {Animated, View, AppState, Keyboard, StyleSheet} from 'react-native';
 import Str from 'expensify-common/lib/str';
 import RNTextInput from '../RNTextInput';
@@ -20,6 +20,7 @@ import FormHelpMessage from '../FormHelpMessage';
 import isInputAutoFilled from '../../libs/isInputAutoFilled';
 import PressableWithoutFeedback from '../Pressable/PressableWithoutFeedback';
 import withLocalize from '../withLocalize';
+import ScreenWrapperContext from '../ScreenWrapper/ScreenWrapperContext';
 
 function BaseTextInput(props) {
     const inputValue = props.value || props.defaultValue || '';
@@ -34,9 +35,20 @@ function BaseTextInput(props) {
     const [width, setWidth] = useState();
     const labelScale = useRef(new Animated.Value(initialActiveLabel ? styleConst.ACTIVE_LABEL_SCALE : styleConst.INACTIVE_LABEL_SCALE)).current;
     const labelTranslateY = useRef(new Animated.Value(initialActiveLabel ? styleConst.ACTIVE_LABEL_TRANSLATE_Y : styleConst.INACTIVE_LABEL_TRANSLATE_Y)).current;
+    const screenWrapperContext = useContext(ScreenWrapperContext);
+    const [isHideKeyboard,setHideKeyboard] = useState(false);
 
     const input = useRef(null);
     const isLabelActive = useRef(initialActiveLabel);
+
+    useEffect(() => {
+        console.log("screenWrapperContext update in basetextinput");
+        if(screenWrapperContext && screenWrapperContext.isHideKeyboard !== isHideKeyboard)
+        {
+            console.log("setHideKeyboard["+screenWrapperContext.isHideKeyboard+"]");
+            setHideKeyboard(screenWrapperContext.isHideKeyboard);
+        }
+    }, [screenWrapperContext]);    
 
     useEffect(() => {
         if (!props.disableKeyboard) {
@@ -339,7 +351,7 @@ function BaseTextInput(props) {
                                 keyboardType={getSecureEntryKeyboardType(props.keyboardType, props.secureTextEntry, passwordHidden)}
                                 value={props.value}
                                 selection={props.selection}
-                                editable={isEditable}
+                                editable={isEditable && !isHideKeyboard}
                                 defaultValue={props.defaultValue}
                                 // FormSubmit Enter key handler does not have access to direct props.
                                 // `dataset.submitOnEnter` is used to indicate that pressing Enter on this input should call the submit callback.
