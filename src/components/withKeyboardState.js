@@ -33,15 +33,14 @@ class KeyboardStateProvider extends React.Component {
             this.setState({isKeyboardShown: false});
         });
         // Reference:
-        //      https://github.com/necolas/react-native-web/blob/master/packages/react-native-web/src/exports/Keyboard/index.js 
-        //      https://github.com/necolas/react-native-web/blob/master/packages/react-native-web/src/modules/dismissKeyboard/index.js  
-        // react-native-web does not have support for Keyboard listeners. 
+        //      https://github.com/necolas/react-native-web/blob/master/packages/react-native-web/src/exports/Keyboard/index.js
+        //      https://github.com/necolas/react-native-web/blob/master/packages/react-native-web/src/modules/dismissKeyboard/index.js
+        // react-native-web does not have support for Keyboard listeners.
         // Further, Keyboard.dismiss only applies if there is currently focused text input field.
-        // So, it is perfectly safe to set isKeyboardShown for mobile browsers. 
-        if(Browser.isMobile())
-        {
-            console.log("Setting isKeyboardShown");
-            this.setState({isKeyboardShown: true});            
+        // So, it is perfectly safe to set isKeyboardShown for mobile browsers.
+        if (Browser.isMobile()) {
+            console.log('Setting isKeyboardShown');
+            this.setState({isKeyboardShown: true});
         }
     }
 

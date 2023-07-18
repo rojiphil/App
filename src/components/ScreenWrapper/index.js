@@ -42,7 +42,7 @@ class ScreenWrapper extends React.Component {
             if (lodashGet(event, 'data.closing')) {
                 return;
             }
-            this.setState({isHideKeyboard:false});
+            this.setState({isHideKeyboard: false});
             this.setState({didScreenTransitionEnd: true});
             this.props.onEntryTransitionEnd();
         });
@@ -57,7 +57,7 @@ class ScreenWrapper extends React.Component {
                     return;
                 }
                 Keyboard.dismiss();
-                this.setState({isHideKeyboard:true});
+                this.setState({isHideKeyboard: true});
                 // Prevent default behavior of leaving the screen
                 e.preventDefault();
                 // console.log("DISMISS KEYBOARD[STARTED]");
@@ -90,12 +90,6 @@ class ScreenWrapper extends React.Component {
             this.beforeRemoveSubscription();
         }
     }
-
-    overrideOnPrepareForNavigation = (fnOnPrepareNavigation) => {
-        this.setState({
-            onPrepareNavigation: fnOnPrepareNavigation,
-        });
-    };
 
     render() {
         const maxHeight = this.props.shouldEnableMaxHeight ? this.props.windowHeight : undefined;

@@ -36,19 +36,18 @@ function BaseTextInput(props) {
     const labelScale = useRef(new Animated.Value(initialActiveLabel ? styleConst.ACTIVE_LABEL_SCALE : styleConst.INACTIVE_LABEL_SCALE)).current;
     const labelTranslateY = useRef(new Animated.Value(initialActiveLabel ? styleConst.ACTIVE_LABEL_TRANSLATE_Y : styleConst.INACTIVE_LABEL_TRANSLATE_Y)).current;
     const screenWrapperContext = useContext(ScreenWrapperContext);
-    const [isHideKeyboard,setHideKeyboard] = useState(false);
+    const [isHideKeyboard, setHideKeyboard] = useState(false);
 
     const input = useRef(null);
     const isLabelActive = useRef(initialActiveLabel);
 
     useEffect(() => {
-        console.log("screenWrapperContext update in basetextinput");
-        if(screenWrapperContext && screenWrapperContext.isHideKeyboard !== isHideKeyboard)
-        {
-            console.log("setHideKeyboard["+screenWrapperContext.isHideKeyboard+"]");
+        console.log('screenWrapperContext update in basetextinput');
+        if (screenWrapperContext && screenWrapperContext.isHideKeyboard !== isHideKeyboard) {
+            console.log('setHideKeyboard[' + screenWrapperContext.isHideKeyboard + ']');
             setHideKeyboard(screenWrapperContext.isHideKeyboard);
         }
-    }, [screenWrapperContext]);    
+    }, [screenWrapperContext]);
 
     useEffect(() => {
         if (!props.disableKeyboard) {
