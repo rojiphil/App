@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import {View, InteractionManager, LayoutAnimation, NativeModules, findNodeHandle} from 'react-native';
 import _ from 'underscore';
 import lodashGet from 'lodash/get';
-import {withOnyx} from 'react-native-onyx';
+import Onyx, {withOnyx} from 'react-native-onyx';
 import styles from '../../../styles/styles';
 import themeColors from '../../../styles/themes/default';
 import Composer from '../../../components/Composer';
@@ -55,6 +55,7 @@ import * as IOU from '../../../libs/actions/IOU';
 import PressableWithFeedback from '../../../components/Pressable/PressableWithFeedback';
 import * as KeyDownListener from '../../../libs/KeyboardShortcut/KeyDownPressListener';
 import * as EmojiPickerActions from '../../../libs/actions/EmojiPickerAction';
+import onyxSubscribe from '../../../libs/onyxSubscribe';
 
 const propTypes = {
     /** Beta features list */
@@ -62,12 +63,6 @@ const propTypes = {
 
     /** A method to call when the form is submitted */
     onSubmit: PropTypes.func.isRequired,
-
-    /** The comment left by the user */
-    comment: PropTypes.string,
-
-    /** Number of lines for the comment */
-    numberOfLines: PropTypes.number,
 
     /** The ID of the report actions will be created for */
     reportID: PropTypes.string.isRequired,
@@ -128,8 +123,6 @@ const propTypes = {
 
 const defaultProps = {
     betas: [],
-    comment: '',
-    numberOfLines: undefined,
     modal: {},
     report: {},
     reportActions: [],
@@ -191,7 +184,7 @@ class ReportActionCompose extends React.Component {
         this.updateNumberOfLines = this.updateNumberOfLines.bind(this);
         this.showPopoverMenu = this.showPopoverMenu.bind(this);
         this.debouncedUpdateFrequentlyUsedEmojis = _.debounce(this.debouncedUpdateFrequentlyUsedEmojis.bind(this), 1000, false);
-        this.comment = props.comment;
+        this.comment = '';
         this.insertedEmojis = [];
 
         this.attachmentModalRef = React.createRef();
@@ -210,11 +203,6 @@ class ReportActionCompose extends React.Component {
         this.shouldBlockEmojiCalc = false;
         this.shouldBlockMentionCalc = false;
 
-        // For mobile Safari, updating the selection prop on an unfocused input will cause it to automatically gain focus
-        // and subsequent programmatic focus shifts (e.g., modal focus trap) to show the blue frame (:focus-visible style),
-        // so we need to ensure that it is only updated after focus.
-        const isMobileSafari = Browser.isMobileSafari();
-
         this.unsubscribeNavigationBlur = () => null;
         this.unsubscribeNavigationFocus = () => null;
 
@@ -222,14 +210,17 @@ class ReportActionCompose extends React.Component {
             isFocused: this.shouldFocusInputOnScreenFocus && !this.props.modal.isVisible && !this.props.modal.willAlertModalBecomeVisible && this.props.shouldShowComposeInput,
             isFullComposerAvailable: props.isComposerFullSize,
             textInputShouldClear: false,
-            isCommentEmpty: props.comment.length === 0,
             isMenuVisible: false,
             isDraggingOver: false,
+
+            comment: '',
+            numberOfLines: 1,
+            isCommentEmpty: true,
             selection: {
-                start: isMobileSafari && !this.shouldAutoFocus ? 0 : props.comment.length,
-                end: isMobileSafari && !this.shouldAutoFocus ? 0 : props.comment.length,
+                start: 0,
+                end: 0,
             },
-            value: props.comment,
+            value: '',
 
             // If we are on a small width device then don't show last 3 items from conciergePlaceholderOptions
             conciergePlaceholderRandomIndex: _.random(this.props.translate('reportActionCompose.conciergePlaceholderOptions').length - (this.props.isSmallScreenWidth ? 4 : 1)),
@@ -241,6 +232,24 @@ class ReportActionCompose extends React.Component {
     }
 
     componentDidMount() {
+        // console.log("----------------- ReportActionCompose["+this.props.reportID+"][MOUNTED] -----------------");
+
+        // Initialize the contents of the composer from Onyx
+        this.unsubscribeOnyxComment = onyxSubscribe({
+            key: ONYXKEYS.COLLECTION.REPORT_DRAFT_COMMENT + this.props.reportID,
+            callback: (comment) => {
+                // console.log("*********** DRAFT COMMENT ["+comment+"] *********** ");
+                this.initializeOnyxData(comment);
+            },
+        });
+        this.unsubscribeOnyxNumOfLines = onyxSubscribe({
+            key: ONYXKEYS.COLLECTION.REPORT_DRAFT_COMMENT_NUMBER_OF_LINES + this.props.reportID,
+            callback: (numberOfLines) => {
+                this.setState({numberOfLines});
+                // console.log("*********** NUM LINES ["+numberOfLines+"] *********** ");
+            },
+        });
+
         // This callback is used in the contextMenuActions to manage giving focus back to the compose input.
         // TODO: we should clean up this convoluted code and instead move focus management to something like ReportFooter.js or another higher up component
         ReportActionComposeFocusManager.onComposerFocus(() => {
@@ -255,7 +264,7 @@ class ReportActionCompose extends React.Component {
         this.unsubscribeNavigationFocus = this.props.navigation.addListener('focus', () => KeyDownListener.addKeyDownPressListner(this.focusComposerOnKeyPress));
         KeyDownListener.addKeyDownPressListner(this.focusComposerOnKeyPress);
 
-        this.updateComment(this.comment);
+        // this.updateComment(this.comment);
 
         // Shows Popover Menu on Workspace Chat at first sign-in
         if (!this.props.disabled) {
@@ -265,12 +274,14 @@ class ReportActionCompose extends React.Component {
             });
         }
 
-        if (this.props.comment.length !== 0) {
-            Report.setReportWithDraft(this.props.reportID, true);
-        }
+        // if (this.state.comment.length !== 0) {
+        //     Report.setReportWithDraft(this.props.reportID, true);
+        // }
     }
 
-    componentDidUpdate(prevProps) {
+    componentDidUpdate(prevProps, prevStates) {
+        // console.log("ReportActionCompose[componentDidUpdate]");
+
         // We want to focus or refocus the input when a modal has been closed or the underlying screen is refocused.
         // We avoid doing this on native platforms since the software keyboard popping
         // open creates a jarring and broken UX.
@@ -280,7 +291,7 @@ class ReportActionCompose extends React.Component {
 
         // Value state does not have the same value as comment props when the comment gets changed from another tab.
         // In this case, we should synchronize the value between tabs.
-        const shouldSyncComment = prevProps.comment !== this.props.comment && this.state.value !== this.props.comment;
+        const shouldSyncComment = prevStates.comment !== this.state.comment && this.state.value !== this.state.comment;
 
         // As the report IDs change, make sure to update the composer comment as we need to make sure
         // we do not show incorrect data in there (ie. draft of message from other report).
@@ -288,15 +299,45 @@ class ReportActionCompose extends React.Component {
             return;
         }
 
-        this.updateComment(this.props.comment);
+        this.updateComment(this.state.comment);
     }
 
     componentWillUnmount() {
+        // console.log("-----------------  ReportActionCompose ["+this.props.reportID+"]  [UNMOUNTED] -----------------");
+
         ReportActionComposeFocusManager.clear();
 
         KeyDownListener.removeKeyDownPressListner(this.focusComposerOnKeyPress);
         this.unsubscribeNavigationBlur();
         this.unsubscribeNavigationFocus();
+
+        if (this.unsubscribeOnyxComment) this.unsubscribeOnyxComment();
+        if (this.unsubscribeOnyxNumOfLines) this.unsubscribeOnyxNumOfLines();
+    }
+
+    initializeOnyxData(comment) {
+        // For mobile Safari, updating the selection prop on an unfocused input will cause it to automatically gain focus
+        // and subsequent programmatic focus shifts (e.g., modal focus trap) to show the blue frame (:focus-visible style),
+        // so we need to ensure that it is only updated after focus.
+        const isMobileSafari = Browser.isMobileSafari();
+
+        // console.log("************ InitializeOnyxData["+this.props.reportID+"]["+this.comment+"] ************");
+        this.setState({
+            comment: comment,
+            isCommentEmpty: comment.length === 0,
+            selection: {
+                start: isMobileSafari && !this.shouldAutoFocus ? 0 : comment.length,
+                end: isMobileSafari && !this.shouldAutoFocus ? 0 : comment.length,
+            },
+            value: comment,
+        });
+        this.comment = comment;
+
+        this.updateComment(comment);
+
+        if (comment.length !== 0) {
+            Report.setReportWithDraft(this.props.reportID, true);
+        }
     }
 
     onSelectionChange(e) {
@@ -1166,7 +1207,7 @@ class ReportActionCompose extends React.Component {
                                                 setIsFullComposerAvailable={this.setIsFullComposerAvailable}
                                                 isComposerFullSize={this.props.isComposerFullSize}
                                                 value={this.state.value}
-                                                numberOfLines={this.props.numberOfLines}
+                                                numberOfLines={this.state.numberOfLines}
                                                 onNumberOfLinesChange={this.updateNumberOfLines}
                                                 shouldCalculateCaretPosition
                                                 onLayout={(e) => {
@@ -1296,12 +1337,6 @@ export default compose(
     withOnyx({
         betas: {
             key: ONYXKEYS.BETAS,
-        },
-        comment: {
-            key: ({reportID}) => `${ONYXKEYS.COLLECTION.REPORT_DRAFT_COMMENT}${reportID}`,
-        },
-        numberOfLines: {
-            key: ({reportID}) => `${ONYXKEYS.COLLECTION.REPORT_DRAFT_COMMENT_NUMBER_OF_LINES}${reportID}`,
         },
         modal: {
             key: ONYXKEYS.MODAL,
