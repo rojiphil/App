@@ -957,6 +957,20 @@ function deleteReportComment(reportID, reportAction) {
         },
     ];
 
+    // We could be deleting a comment in parent chat that has a reply thread with or without comments.
+    // Or we could be deleting a parent comment in the thread chat. 
+    // In both these cases, we can update the last read time of the thread chat report so that LHN updates instantly.
+    if(ReportUtils.isThreadParent(reportAction)) 
+    {   
+        optimisticData.push({
+            onyxMethod: Onyx.METHOD.MERGE,
+            key: `${ONYXKEYS.COLLECTION.REPORT}${reportAction.childReportID}`,
+            value: {
+                lastReadTime: DateUtils.getDBTime()
+            }
+        });     
+    }
+
     // Update optimistic data for parent report action if the report is a child report
     const optimisticParentReportData = ReportUtils.getOptimisticDataForParentReportAction(reportID, optimisticReport.lastVisibleActionCreated, CONST.RED_BRICK_ROAD_PENDING_ACTION.DELETE);
     if (!_.isEmpty(optimisticParentReportData)) {
