@@ -870,6 +870,9 @@ Onyx.connect({
  */
 function deleteReportComment(reportID, reportAction) {
     const originalReportID = ReportUtils.getOriginalReportID(reportID, reportAction);
+    const myReportAction = reportAction;
+    console.log('Deleting Report Comment[' + reportID + '],ReportActionID[' + myReportAction.reportActionID + ']');
+    console.dir(myReportAction);
     const reportActionID = reportAction.reportActionID;
     const deletedMessage = [
         {
@@ -878,7 +881,7 @@ function deleteReportComment(reportID, reportAction) {
             html: '',
             text: '',
             isEdited: true,
-            isDeletedParentAction: true,
+            isDeletedParentAction: ReportUtils.isThreadParent(reportAction),
         },
     ];
     const optimisticReportActions = {
@@ -966,12 +969,12 @@ function deleteReportComment(reportID, reportAction) {
         optimisticData.push(optimisticParentReportData);
     }
 
-    // Check to see if the report action we are deleting is the first comment on a thread report. In this case, we need to trigger
+    // Check to see if the report action we are deleting is a thread parent action. In this case, we need to trigger
     // an update to let the LHN know that the parentReportAction is now deleted.
-    if (ReportUtils.isThreadFirstChat(reportAction, reportID)) {
+    if(ReportUtils.isThreadParent(reportAction)) {
         optimisticData.push({
             onyxMethod: Onyx.METHOD.MERGE,
-            key: `${ONYXKEYS.COLLECTION.REPORT}${reportID}`,
+            key: `${ONYXKEYS.COLLECTION.REPORT}${reportAction.childReportID}`,
             value: {updateReportInLHN: true},
         });
     }
