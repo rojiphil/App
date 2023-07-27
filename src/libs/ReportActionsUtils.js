@@ -69,6 +69,14 @@ function isDeletedAction(reportAction) {
  * @param {Object} reportAction
  * @returns {Boolean}
  */
+function isDeletedParentAction(reportAction) {
+    return lodashGet(reportAction, ['message', 0, 'isDeletedParentAction'], false) && lodashGet(reportAction, 'childVisibleActionCount', 0) > 0;
+}
+
+/**
+ * @param {Object} reportAction
+ * @returns {Boolean}
+ */
 function isPendingRemove(reportAction) {
     return lodashGet(reportAction, 'message[0].moderationDecisions[0].decision') === CONST.MODERATION.MODERATOR_DECISION_PENDING_REMOVE;
 }
@@ -338,8 +346,7 @@ function shouldReportActionBeVisible(reportAction, key) {
     // All other actions are displayed except thread parents, deleted, or non-pending actions
     const isDeleted = isDeletedAction(reportAction);
     const isPending = !_.isEmpty(reportAction.pendingAction);
-    const isDeletedParentAction = lodashGet(reportAction, ['message', 0, 'isDeletedParentAction'], false) && lodashGet(reportAction, 'childVisibleActionCount', 0) > 0;
-    return !isDeleted || isPending || isDeletedParentAction;
+    return !isDeleted || isPending || isDeletedParentAction(reportAction);
 }
 
 /**
@@ -350,6 +357,10 @@ function shouldReportActionBeVisible(reportAction, key) {
  * @returns {Boolean}
  */
 function shouldReportActionBeVisibleAsLastAction(reportAction) {
+    if (!reportAction) {
+        return false;
+    }
+
     return shouldReportActionBeVisible(reportAction, reportAction.reportActionID) && !isWhisperAction(reportAction) && !isDeletedAction(reportAction);
 }
 
@@ -526,7 +537,7 @@ function getMostRecentReportActionLastModified() {
 function getReportPreviewAction(chatReportID, iouReportID) {
     return _.find(
         allReportActions[chatReportID],
-        (reportAction) => reportAction.actionName === CONST.REPORT.ACTIONS.TYPE.REPORTPREVIEW && lodashGet(reportAction, 'originalMessage.linkedReportID') === iouReportID,
+        (reportAction) => reportAction && reportAction.actionName === CONST.REPORT.ACTIONS.TYPE.REPORTPREVIEW && lodashGet(reportAction, 'originalMessage.linkedReportID') === iouReportID,
     );
 }
 
@@ -578,6 +589,7 @@ export {
     isTransactionThread,
     getFormattedAmount,
     isSentMoneyReportAction,
+    isDeletedParentAction,
     isReportPreviewAction,
     getIOUReportIDFromReportActionPreview,
     isMessageDeleted,
