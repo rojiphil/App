@@ -58,7 +58,11 @@ function isCreatedAction(reportAction) {
 function isDeletedAction(reportAction) {
     // A deleted comment has either an empty array or an object with html field with empty string as value
     const message = lodashGet(reportAction, 'message', []);
-    return message.length === 0 || lodashGet(message, [0, 'html']) === '';
+    // return message.length === 0 || lodashGet(message, [0, 'html']) === '';
+    const isEmptyMessage = message.length === 0 || lodashGet(message, [0, 'html']) === '';
+    if(!isEmptyMessage)
+        return isEmptyMessage;
+    return reportAction.isDeletedParentAction && reportAction.childVisibleActionCount > 0 ? false : isEmptyMessage;    
 }
 
 /**
