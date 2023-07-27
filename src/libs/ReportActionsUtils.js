@@ -60,9 +60,17 @@ function isDeletedAction(reportAction) {
     const message = lodashGet(reportAction, 'message', []);
     // return message.length === 0 || lodashGet(message, [0, 'html']) === '';
     const isEmptyMessage = message.length === 0 || lodashGet(message, [0, 'html']) === '';
-    if(!isEmptyMessage)
+    if(!reportAction.isDeletedParentAction)
         return isEmptyMessage;
-    return reportAction.isDeletedParentAction && reportAction.childVisibleActionCount > 0 ? false : isEmptyMessage;    
+    console.log("isDeletedAction,childVisibleActionCount["+reportAction.childVisibleActionCount+"]");
+    return reportAction.childVisibleActionCount === 0;
+    // if(isEmptyMessage)
+    // {
+    //     // It is possible to have the text as empty if this is a deletedParentAction and with childVisibleCount=0
+    //     // If so, hide
+    //     return reportAction.isDeletedParentAction && reportAction.childVisibleActionCount === 0 ? false : isEmptyMessage;isEmptyMessage;
+    // }        
+    // return reportAction.isDeletedParentAction && reportAction.childVisibleActionCount > 0 ? false : isEmptyMessage;    
 }
 
 /**
