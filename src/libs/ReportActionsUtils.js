@@ -86,7 +86,7 @@ function isDeletedParentAction(reportAction) {
  * @returns {Boolean}
  */
 function isPendingRemove(reportAction) {
-    return lodashGet(reportAction, 'message[0].moderationDecisions[0].decision') === CONST.MODERATION.MODERATOR_DECISION_PENDING_REMOVE;
+    return lodashGet(reportAction, 'message[0].moderationDecision.decision') === CONST.MODERATION.MODERATOR_DECISION_PENDING_REMOVE;
 }
 
 /**
@@ -579,6 +579,7 @@ export {
     getLastVisibleMessage,
     getMostRecentIOURequestActionID,
     extractLinksFromMessageHtml,
+    isCreatedAction,
     isDeletedAction,
     shouldReportActionBeVisible,
     shouldReportActionBeVisibleAsLastAction,
