@@ -58,19 +58,7 @@ function isCreatedAction(reportAction) {
 function isDeletedAction(reportAction) {
     // A deleted comment has either an empty array or an object with html field with empty string as value
     const message = lodashGet(reportAction, 'message', []);
-    // return message.length === 0 || lodashGet(message, [0, 'html']) === '';
-    const isEmptyMessage = message.length === 0 || lodashGet(message, [0, 'html']) === '';
-    if(!reportAction.isDeletedParentAction)
-        return isEmptyMessage;
-    console.log("isDeletedAction,childVisibleActionCount["+reportAction.childVisibleActionCount+"]");
-    return reportAction.childVisibleActionCount === 0;
-    // if(isEmptyMessage)
-    // {
-    //     // It is possible to have the text as empty if this is a deletedParentAction and with childVisibleCount=0
-    //     // If so, hide
-    //     return reportAction.isDeletedParentAction && reportAction.childVisibleActionCount === 0 ? false : isEmptyMessage;isEmptyMessage;
-    // }        
-    // return reportAction.isDeletedParentAction && reportAction.childVisibleActionCount > 0 ? false : isEmptyMessage;    
+    return message.length === 0 || lodashGet(message, [0, 'html']) === '';
 }
 
 /**
@@ -351,10 +339,15 @@ function shouldReportActionBeVisible(reportAction, key) {
         return false;
     }
 
-    // All other actions are displayed except thread parents, deleted, or non-pending actions
+    // Display action if this is a thread parent
+    if(isDeletedParentAction(reportAction)) {
+        return true;
+    }    
+
+    // All other actions are displayed except deleted, or non-pending actions
     const isDeleted = isDeletedAction(reportAction);
     const isPending = !_.isEmpty(reportAction.pendingAction);
-    return !isDeleted || isPending || isDeletedParentAction(reportAction);
+    return !isDeleted || isPending;
 }
 
 /**
@@ -369,7 +362,7 @@ function shouldReportActionBeVisibleAsLastAction(reportAction) {
         return false;
     }
 
-    return shouldReportActionBeVisible(reportAction, reportAction.reportActionID) && !isWhisperAction(reportAction) && !isDeletedAction(reportAction);
+    return shouldReportActionBeVisible(reportAction, reportAction.reportActionID) && !isWhisperAction(reportAction);
 }
 
 /**

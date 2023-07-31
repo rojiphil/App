@@ -314,7 +314,7 @@ function getOptionData(report, personalDetails, preferredLocale, policy) {
         const lastAction = visibleReportActionItems[report.reportID];
         console.log("lastAction[Object],reportID["+report.reportID+"],lastMessageText["+lastMessageText+"]");
         console.dir(lastAction);
-        if (lodashGet(lastAction, 'actionName', '') === CONST.REPORT.ACTIONS.TYPE.ADDCOMMENT && lodashGet(lastAction, ['message', 0, 'isDeletedParentAction'], false) && lodashGet(lastAction, 'childVisibleActionCount', 0) > 0) {
+        if (lodashGet(lastAction, 'actionName', '') === CONST.REPORT.ACTIONS.TYPE.ADDCOMMENT && ReportActionsUtils.isDeletedParentAction(lastAction)) {
             // Called when Parent Report has a most recent visible action that has a thread which is deleted but has more than one visible child comments.  
             result.alternateText = Localize.translate(preferredLocale, 'parentReportAction.deletedMessage');
             console.log("DeletedThread,alternateText["+result.alternateText+"]");

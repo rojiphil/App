@@ -964,10 +964,14 @@ function deleteReportComment(reportID, reportAction) {
         },
     ];
 
-    // Update optimistic data for parent report action if the report is a child report
-    const optimisticParentReportData = ReportUtils.getOptimisticDataForParentReportAction(reportID, optimisticReport.lastVisibleActionCreated, CONST.RED_BRICK_ROAD_PENDING_ACTION.DELETE);
-    if (!_.isEmpty(optimisticParentReportData)) {
-        optimisticData.push(optimisticParentReportData);
+    // Update optimistic data for parent report action if the report is a child report and the reportAction is that of the child report.
+    const currentReport = ReportUtils.getReport(reportID);
+    if(currentReport && currentReport.parentReportActionID &&  currentReport.parentReportActionID !== reportAction.reportActionID)
+    {
+        const optimisticParentReportData = ReportUtils.getOptimisticDataForParentReportAction(reportID, optimisticReport.lastVisibleActionCreated, CONST.RED_BRICK_ROAD_PENDING_ACTION.DELETE);
+        if (!_.isEmpty(optimisticParentReportData)) {
+            optimisticData.push(optimisticParentReportData);
+        }
     }
 
     // Check to see if the report action we are deleting is a thread parent action. In this case, we need to trigger
