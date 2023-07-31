@@ -901,13 +901,7 @@ function deleteReportComment(reportID, reportAction) {
         lastMessageText: '',
         lastVisibleActionCreated: '',
     };
-    if (reportAction.childVisibleActionCount === 0) {
-        optimisticReport = {
-            lastMessageTranslationKey: '',
-            lastMessageText: '',
-            isLastMessageDeletedParentAction: true,
-        };
-    } else {
+    if (reportAction.childVisibleActionCount !== 0) {
         const {lastMessageText = '', lastMessageTranslationKey = ''} = ReportActionsUtils.getLastVisibleMessage(originalReportID, optimisticReportActions);
         if (lastMessageText || lastMessageTranslationKey) {
             const lastVisibleAction = ReportActionsUtils.getLastVisibleAction(originalReportID, optimisticReportActions);
