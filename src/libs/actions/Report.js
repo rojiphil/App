@@ -969,9 +969,11 @@ function deleteReportComment(reportID, reportAction) {
             // If the visible children for the child report is 0 and if the parent action is in deleted state, 
             // the LHN of Parent Report will not get updated if deleted parent action is the most recent one in the report
             // The solution is to update the parent report here with the last message that is immediately previous visible one of the deleted parent action.
+            console.log("childVisibleActionCount["+optimisticParentReportData.value[currentReport.parentReportActionID].childVisibleActionCount+"]");
             if(optimisticParentReportData.value[currentReport.parentReportActionID].childVisibleActionCount === 0)
             {
                 const {lastMessageText = '', lastMessageTranslationKey = ''} = ReportActionsUtils.getLastVisibleMessage(currentReport.parentReportID, optimisticParentReportData.value);
+                console.log("lastMessageText["+lastMessageText+"],lastMessageTranslationKey["+lastMessageTranslationKey+"]");
                 if (lastMessageText || lastMessageTranslationKey) {
                     const lastVisibleAction = ReportActionsUtils.getLastVisibleAction(currentReport.parentReportID, optimisticParentReportData.value);
                     const lastVisibleActionCreated = lastVisibleAction.created;
@@ -985,8 +987,9 @@ function deleteReportComment(reportID, reportAction) {
                                 lastMessageText,
                                 lastVisibleActionCreated,
                                 lastActorAccountID,
+                                lastModified:DateUtils.getDBTime(),
                                 },
-                        }                        
+                        }
                     );
                 }
             }
@@ -1001,6 +1004,8 @@ function deleteReportComment(reportID, reportAction) {
             value: {updateReportInLHN: true},
         });
     }
+    console.log("optimisticData[object]");
+    console.dir(optimisticData);
 
     const parameters = {
         reportID: originalReportID,
