@@ -965,15 +965,39 @@ function deleteReportComment(reportID, reportAction) {
         const optimisticParentReportData = ReportUtils.getOptimisticDataForParentReportAction(reportID, optimisticReport.lastVisibleActionCreated, CONST.RED_BRICK_ROAD_PENDING_ACTION.DELETE);
         if (!_.isEmpty(optimisticParentReportData)) {
             optimisticData.push(optimisticParentReportData);
+
+            // If the visible children for the child report is 0 and if the parent action is in deleted state, 
+            // the LHN of Parent Report will not get updated if deleted parent action is the most recent one in the report
+            // The solution is to update the parent report here with the last message that is immediately previous visible one of the deleted parent action.
+            if(optimisticParentReportData.value[currentReport.parentReportActionID].childVisibleActionCount === 0)
+            {
+                const {lastMessageText = '', lastMessageTranslationKey = ''} = ReportActionsUtils.getLastVisibleMessage(currentReport.parentReportID, optimisticParentReportData.value);
+                if (lastMessageText || lastMessageTranslationKey) {
+                    const lastVisibleAction = ReportActionsUtils.getLastVisibleAction(currentReport.parentReportID, optimisticParentReportData.value);
+                    const lastVisibleActionCreated = lastVisibleAction.created;
+                    const lastActorAccountID = lastVisibleAction.actorAccountID;
+                    optimisticData.push(
+                        {
+                            onyxMethod: Onyx.METHOD.MERGE,
+                            key: `${ONYXKEYS.COLLECTION.REPORT}${currentReport.parentReportID}`,
+                            value:{
+                                lastMessageTranslationKey,
+                                lastMessageText,
+                                lastVisibleActionCreated,
+                                lastActorAccountID,
+                                },
+                        }                        
+                    );
+                }
+            }
         }
     }
-
-    // Check to see if the report action we are deleting is a thread parent action. In this case, we need to trigger
+    // Check to see if the report action we are deleting is the first comment on a thread report. In this case, we need to trigger
     // an update to let the LHN know that the parentReportAction is now deleted.
-    if(ReportUtils.isThreadParent(reportAction)) {
+    if (ReportUtils.isThreadFirstChat(reportAction, reportID)) {
         optimisticData.push({
             onyxMethod: Onyx.METHOD.MERGE,
-            key: `${ONYXKEYS.COLLECTION.REPORT}${reportAction.childReportID}`,
+            key: `${ONYXKEYS.COLLECTION.REPORT}${reportID}`,
             value: {updateReportInLHN: true},
         });
     }
