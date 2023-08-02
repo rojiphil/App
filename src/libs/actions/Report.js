@@ -974,24 +974,22 @@ function deleteReportComment(reportID, reportAction) {
             {
                 const {lastMessageText = '', lastMessageTranslationKey = ''} = ReportActionsUtils.getLastVisibleMessage(currentReport.parentReportID, optimisticParentReportData.value);
                 console.log("lastMessageText["+lastMessageText+"],lastMessageTranslationKey["+lastMessageTranslationKey+"]");
-                if (lastMessageText || lastMessageTranslationKey) {
-                    const lastVisibleAction = ReportActionsUtils.getLastVisibleAction(currentReport.parentReportID, optimisticParentReportData.value);
-                    const lastVisibleActionCreated = lastVisibleAction.created;
-                    const lastActorAccountID = lastVisibleAction.actorAccountID;
-                    optimisticData.push(
-                        {
-                            onyxMethod: Onyx.METHOD.MERGE,
-                            key: `${ONYXKEYS.COLLECTION.REPORT}${currentReport.parentReportID}`,
-                            value:{
-                                lastMessageTranslationKey,
-                                lastMessageText,
-                                lastVisibleActionCreated,
-                                lastActorAccountID,
-                                lastModified:DateUtils.getDBTime(),
-                                },
-                        }
-                    );
-                }
+                const lastVisibleAction = ReportActionsUtils.getLastVisibleAction(currentReport.parentReportID, optimisticParentReportData.value);
+                const lastVisibleActionCreated = lastVisibleAction.created;
+                const lastActorAccountID = lastVisibleAction.actorAccountID;
+                optimisticData.push(
+                    {
+                        onyxMethod: Onyx.METHOD.MERGE,
+                        key: `${ONYXKEYS.COLLECTION.REPORT}${currentReport.parentReportID}`,
+                        value:{
+                            lastMessageTranslationKey,
+                            lastMessageText,
+                            lastVisibleActionCreated,
+                            lastActorAccountID,
+                            lastModified:DateUtils.getDBTime(),
+                            },
+                    }
+                );
             }
         }
     }
