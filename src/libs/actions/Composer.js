@@ -5,6 +5,7 @@ import ONYXKEYS from '../../ONYXKEYS';
  * @param {Boolean} shouldShowComposeInput
  */
 function setShouldShowComposeInput(shouldShowComposeInput) {
+    console.log("setShouldShowComposeInput["+shouldShowComposeInput+"]");
     Onyx.set(ONYXKEYS.SHOULD_SHOW_COMPOSE_INPUT, shouldShowComposeInput);
 }
 

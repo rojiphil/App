@@ -96,6 +96,7 @@ function ReportActionItemMessageEdit(props) {
     });
     const [selection, setSelection] = useState({start: 0, end: 0});
     const [isFocused, setIsFocused] = useState(false);
+    const [focusCallback, setFocusCallback] = useState(null);
     const [hasExceededMaxCommentLength, setHasExceededMaxCommentLength] = useState(false);
 
     const textInputRef = useRef(null);
@@ -108,6 +109,40 @@ function ReportActionItemMessageEdit(props) {
     }, [isFocused]);
 
     useEffect(() => {
+        // setFocusCallback(onFocusCallback);
+        return () => {
+            const isCurrent = ReportActionComposeFocusManager.isCurrentActionItem(onFocusCallback);
+            console.log("MESSAGE_EDIT_UNMOUNT,FOCUSED["+isCurrent+"]");
+            if (isCurrent)
+            {
+                ReportActionComposeFocusManager.clear(true);
+                console.log("setShouldShowComposeInput[In MESSAGE_EDIT_UNMOUNT]");
+                ComposerActions.setShouldShowComposeInput(true);
+            }
+            ReportActionComposeFocusManager.focus();
+            //     // Skip if this is not the focused message so the other edit composer stays focused.
+        //     // In small screen devices, when EmojiPicker is shown, the current edit message will lose focus, we need to check this case as well.
+        //     if (!isFocusedRef.current && !EmojiPickerAction.isActiveReportAction(props.action.reportActionID)) {
+        //         return;
+        //     }
+
+        //     // Show the main composer when the focused message is deleted from another client
+        //     // to prevent the main composer stays hidden until we swtich to another chat.
+        //     console.log("setShouldShowComposeInput[In MESSAGE_EDIT_UNMOUNT]");
+        //     ComposerActions.setShouldShowComposeInput(true);
+        };
+
+    }, []);
+
+    const onFocusCallback = useRef(
+        () => {
+            console.log("FOCUS_ON_EDIT["+props.action.reportActionID+"]");
+            textInputRef.current.focus();
+        },
+        [textInputRef],
+    );    
+
+    useEffect(() => {
         // For mobile Safari, updating the selection prop on an unfocused input will cause it to automatically gain focus
         // and subsequent programmatic focus shifts (e.g., modal focus trap) to show the blue frame (:focus-visible style),
         // so we need to ensure that it is only updated after focus.
@@ -118,18 +153,6 @@ function ReportActionItemMessageEdit(props) {
             });
             return prevDraft;
         });
-
-        return () => {
-            // Skip if this is not the focused message so the other edit composer stays focused.
-            // In small screen devices, when EmojiPicker is shown, the current edit message will lose focus, we need to check this case as well.
-            if (!isFocusedRef.current && !EmojiPickerAction.isActiveReportAction(props.action.reportActionID)) {
-                return;
-            }
-
-            // Show the main composer when the focused message is deleted from another client
-            // to prevent the main composer stays hidden until we swtich to another chat.
-            ComposerActions.setShouldShowComposeInput(true);
-        };
     }, [props.action.reportActionID]);
 
     /**
@@ -202,8 +225,13 @@ function ReportActionItemMessageEdit(props) {
     const deleteDraft = useCallback(() => {
         debouncedSaveDraft.cancel();
         Report.saveReportActionDraft(props.reportID, props.action.reportActionID, '');
-        ComposerActions.setShouldShowComposeInput(true);
-        ReportActionComposeFocusManager.focus();
+        // if (isFocusedRef.current)
+        // {
+        //     ReportActionComposeFocusManager.clear(true);
+        //     console.log("setShouldShowComposeInput[In MESSAGE_EDIT_DELETE DRAFT]");
+        //     ComposerActions.setShouldShowComposeInput(true);
+        // }
+        // ReportActionComposeFocusManager.focus();
 
         // Scroll to the last comment after editing to make sure the whole comment is clearly visible in the report.
         if (props.index === 0) {
@@ -321,8 +349,10 @@ function ReportActionItemMessageEdit(props) {
                             maxLines={isSmallScreenWidth ? CONST.COMPOSER.MAX_LINES_SMALL_SCREEN : CONST.COMPOSER.MAX_LINES} // This is the same that slack has
                             style={[styles.textInputCompose, styles.flex1, styles.bgTransparent]}
                             onFocus={() => {
+                                ReportActionComposeFocusManager.onComposerFocus(onFocusCallback,true);
                                 setIsFocused(true);
                                 reportScrollManager.scrollToIndex({animated: true, index: props.index}, true);
+                                console.log("setShouldShowComposeInput[In MESSAGE_EDIT_ONFOCUS]");
                                 ComposerActions.setShouldShowComposeInput(false);
                             }}
                             onBlur={(event) => {
@@ -334,6 +364,7 @@ function ReportActionItemMessageEdit(props) {
                                     return;
                                 }
 
+                                console.log("messageEditInput["+messageEditInput+"],relatedTargetId["+relatedTargetId+"]");
                                 if (messageEditInput === relatedTargetId) {
                                     return;
                                 }

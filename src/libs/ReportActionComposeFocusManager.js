@@ -3,6 +3,7 @@ import React from 'react';
 
 const composerRef = React.createRef();
 let focusCallback = null;
+let focusActionItemCallback = null;
 
 /**
  * Register a callback to be called when focus is requested.
@@ -10,8 +11,20 @@ let focusCallback = null;
  *
  * @param {Function} callback callback to register
  */
-function onComposerFocus(callback) {
-    focusCallback = callback;
+function onComposerFocus(callback, isActionItem = false) {
+    // console.log("ReportActionComposeFocusManager]");
+    if(isActionItem)
+    {
+        console.log("ReportActionComposeFocusManager:CALLBACK[ReportActionCompose]");
+        focusCallback = null;
+        focusCallback = callback;
+    }
+    else
+    {
+        console.log("ReportActionComposeFocusManager:CALLBACK[ReportActionMessageEdit]");
+        focusActionItemCallback = null;
+        focusActionItemCallback = callback;
+    }
 }
 
 /**
@@ -19,19 +32,35 @@ function onComposerFocus(callback) {
  *
  */
 function focus() {
-    if (!_.isFunction(focusCallback)) {
+    // console.log("ReportActionComposeFocusManager");
+    if (_.isFunction(focusActionItemCallback)) {
+        console.log("ReportActionComposeFocusManager:FOCUS[ReportActionMessageEdit]");
+        focusActionItemCallback();
         return;
     }
-
-    focusCallback();
+    if (_.isFunction(focusCallback)) {
+        console.log("ReportActionComposeFocusManager:FOCUS[ReportActionCompose]");
+        focusCallback();
+        return;
+    }
 }
 
 /**
  * Clear the registered focus callback
  *
  */
-function clear() {
-    focusCallback = null;
+function clear(isActionItem = false) {
+    // console.log("ReportActionComposeFocusManager");
+    if(isActionItem)
+    {
+        console.log("ReportActionComposeFocusManager:CLEAR[ReportActionCompose]");
+        focusCallback = null;
+    }
+    else
+    {
+        console.log("ReportActionComposeFocusManager:CLEAR[ReportActionMessageEdit]");
+        focusActionItemCallback = null;
+    }
 }
 
 /**
@@ -42,10 +71,16 @@ function isFocused() {
     return composerRef.current && composerRef.current.isFocused();
 }
 
+function isCurrentActionItem(onFocusCallback) {
+    console.log("focusActionItemCallback["+focusActionItemCallback+"],onFocusCallback["+onFocusCallback+"]");
+    return focusActionItemCallback === onFocusCallback;
+}
+
 export default {
     composerRef,
     onComposerFocus,
     focus,
     clear,
     isFocused,
+    isCurrentActionItem,
 };

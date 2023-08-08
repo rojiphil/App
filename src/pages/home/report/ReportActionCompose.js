@@ -246,13 +246,14 @@ class ReportActionCompose extends React.Component {
     }
 
     componentDidMount() {
+        console.log("ReportActionCompose[MOUNT]");
         this.unsubscribeNavigationBlur = this.props.navigation.addListener('blur', () => KeyDownListener.removeKeyDownPressListner(this.focusComposerOnKeyPress));
         this.unsubscribeNavigationFocus = this.props.navigation.addListener('focus', () => {
-            KeyDownListener.addKeyDownPressListner(this.focusComposerOnKeyPress);
             this.setUpComposeFocusManager();
+            KeyDownListener.addKeyDownPressListner(this.focusComposerOnKeyPress);
         });
-        KeyDownListener.addKeyDownPressListner(this.focusComposerOnKeyPress);
         this.setUpComposeFocusManager();
+        KeyDownListener.addKeyDownPressListner(this.focusComposerOnKeyPress);
 
         this.updateComment(this.comment);
 
@@ -274,7 +275,8 @@ class ReportActionCompose extends React.Component {
         // We avoid doing this on native platforms since the software keyboard popping
         // open creates a jarring and broken UX.
         if (this.willBlurTextInputOnTapOutside && !this.props.modal.isVisible && this.props.isFocused && (prevProps.modal.isVisible || !prevProps.isFocused)) {
-            this.focus();
+            console.log("[ReportActionCompose][componentDidUpdate]ReportActionComposeFocusManager.focus");
+            ReportActionComposeFocusManager.focus();
         }
 
         // Value state does not have the same value as comment props when the comment gets changed from another tab.
@@ -291,6 +293,8 @@ class ReportActionCompose extends React.Component {
     }
 
     componentWillUnmount() {
+        console.log("ReportActionCompose[UNMOUNT]");
+        // ReportActionComposeFocusManager.clear(true);
         ReportActionComposeFocusManager.clear();
 
         KeyDownListener.removeKeyDownPressListner(this.focusComposerOnKeyPress);
@@ -344,6 +348,11 @@ class ReportActionCompose extends React.Component {
      * @param {Boolean} shouldHighlight
      */
     setIsFocused(shouldHighlight) {
+        if(shouldHighlight)
+        {
+            console.log("Clearing Edit Callback as focus is on Composer");
+            ReportActionComposeFocusManager.clear(true);
+        }        
         this.setState({isFocused: shouldHighlight});
     }
 
@@ -737,7 +746,7 @@ class ReportActionCompose extends React.Component {
             return;
         }
 
-        this.focus();
+        ReportActionComposeFocusManager.focus();
         this.replaceSelectionWithText(e.key, false);
     }
 
@@ -747,6 +756,7 @@ class ReportActionCompose extends React.Component {
      * @memberof ReportActionCompose
      */
     focus(shouldelay = false) {
+        console.log("FOCUS_ON_COMPOSER[DELAY("+shouldelay+")]");
         // There could be other animations running while we trigger manual focus.
         // This prevents focus from making those animations janky.
         InteractionManager.runAfterInteractions(() => {
