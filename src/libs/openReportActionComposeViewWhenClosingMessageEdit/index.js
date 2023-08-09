@@ -1,6 +1,6 @@
 import * as Composer from '../actions/Composer';
 
 export default () => {
-    console.log("setShouldShowComposeInput[In openReportActionComposeViewWhenClosingMessageEdit(WEB)]");
+    console.log("openReportActionComposeViewWhenClosingMessageEdit(WEB):setShouldShowComposeInput[true]");
     Composer.setShouldShowComposeInput(true);
 };

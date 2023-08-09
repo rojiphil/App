@@ -12,11 +12,11 @@ let focusActionItemCallback = null;
  * @param {Function} callback callback to register
  */
 function onComposerFocus(callback, isActionItem = false) {
-    // console.log("ReportActionComposeFocusManager]");
+    console.log("ReportActionComposeFocusManager:onComposerFocus["+isActionItem+"]");
     if(isActionItem)
     {
-        console.log("ReportActionComposeFocusManager:CALLBACK[ReportActionCompose]");
         focusCallback = null;
+        console.log("ReportActionComposeFocusManager:CALLBACK[ReportActionCompose]");
         focusCallback = callback;
     }
     else
@@ -33,9 +33,9 @@ function onComposerFocus(callback, isActionItem = false) {
  */
 function focus() {
     // console.log("ReportActionComposeFocusManager");
-    if (_.isFunction(focusActionItemCallback)) {
+    if (_.isObject(focusActionItemCallback)) {
         console.log("ReportActionComposeFocusManager:FOCUS[ReportActionMessageEdit]");
-        focusActionItemCallback();
+        focusActionItemCallback.current();
         return;
     }
     if (_.isFunction(focusCallback)) {

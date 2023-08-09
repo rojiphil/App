@@ -96,7 +96,6 @@ function ReportActionItemMessageEdit(props) {
     });
     const [selection, setSelection] = useState({start: 0, end: 0});
     const [isFocused, setIsFocused] = useState(false);
-    const [focusCallback, setFocusCallback] = useState(null);
     const [hasExceededMaxCommentLength, setHasExceededMaxCommentLength] = useState(false);
 
     const textInputRef = useRef(null);
@@ -116,20 +115,10 @@ function ReportActionItemMessageEdit(props) {
             if (isCurrent)
             {
                 ReportActionComposeFocusManager.clear(true);
-                console.log("setShouldShowComposeInput[In MESSAGE_EDIT_UNMOUNT]");
+                console.log("MESSAGE_EDIT_UNMOUNT:setShouldShowComposeInput[true]");
                 ComposerActions.setShouldShowComposeInput(true);
             }
             ReportActionComposeFocusManager.focus();
-            //     // Skip if this is not the focused message so the other edit composer stays focused.
-        //     // In small screen devices, when EmojiPicker is shown, the current edit message will lose focus, we need to check this case as well.
-        //     if (!isFocusedRef.current && !EmojiPickerAction.isActiveReportAction(props.action.reportActionID)) {
-        //         return;
-        //     }
-
-        //     // Show the main composer when the focused message is deleted from another client
-        //     // to prevent the main composer stays hidden until we swtich to another chat.
-        //     console.log("setShouldShowComposeInput[In MESSAGE_EDIT_UNMOUNT]");
-        //     ComposerActions.setShouldShowComposeInput(true);
         };
 
     }, []);
@@ -352,7 +341,7 @@ function ReportActionItemMessageEdit(props) {
                                 ReportActionComposeFocusManager.onComposerFocus(onFocusCallback,true);
                                 setIsFocused(true);
                                 reportScrollManager.scrollToIndex({animated: true, index: props.index}, true);
-                                console.log("setShouldShowComposeInput[In MESSAGE_EDIT_ONFOCUS]");
+                                console.log("MESSAGE_EDIT_ONFOCUS:setShouldShowComposeInput[false]");
                                 ComposerActions.setShouldShowComposeInput(false);
                             }}
                             onBlur={(event) => {
