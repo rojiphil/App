@@ -1762,6 +1762,8 @@ function openReportFromDeepLink(url, isAuthenticated) {
  * @param {String} reportID
  */
 function leaveRoom(reportID) {
+    const report = lodashGet(allReports, [reportID], {});
+    const reportKeys = _.keys(report);
     API.write(
         'LeaveRoom',
         {
@@ -1778,6 +1780,15 @@ function leaveRoom(reportID) {
                     },
                 },
             ],
+            // Manually clear the report using merge. Should not use set here since it would cause race condition
+            // if it was called right after a merge.
+            successData: [
+                {
+                    onyxMethod: Onyx.METHOD.MERGE,
+                    key: `${ONYXKEYS.COLLECTION.REPORT}${reportID}`,
+                    value: _.object(reportKeys, Array(reportKeys.length).fill(null)),
+                },
+            ],
             failureData: [
                 {
                     onyxMethod: Onyx.METHOD.SET,
@@ -1790,6 +1801,10 @@ function leaveRoom(reportID) {
             ],
         },
     );
+    Navigation.dismissModal();
+    if (Navigation.getTopmostReportId() === reportID) {
+        Navigation.goBack();
+    }
     navigateToConciergeChat();
 }
 
