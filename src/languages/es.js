@@ -154,6 +154,8 @@ export default {
         edit: 'Editar',
         showMore: 'Mostrar más',
         merchant: 'Comerciante',
+        receipt: 'Recibo',
+        replace: 'Sustituir',
     },
     anonymousReportFooter: {
         logoTagline: 'Únete a la discussion.',
@@ -247,7 +249,6 @@ export default {
         hero: {
             header: 'Divida las facturas, solicite pagos y chatee con sus amigos.',
             body: 'Bienvenido al futuro de Expensify, tu nuevo lugar de referencia para la colaboración financiera con amigos y compañeros de equipo por igual.',
-            demoHeadline: '¡Bienvenido a SaaStr! Entra y empieza a establecer contactos.',
         },
     },
     thirdPartySignIn: {
@@ -309,8 +310,7 @@ export default {
         beginningOfChatHistoryDomainRoomPartTwo: ' para chatear con compañeros, compartir consejos o hacer una pregunta.',
         beginningOfChatHistoryAdminRoomPartOne: ({workspaceName}) => `Este es el lugar para que los administradores de ${workspaceName} colaboren! 🎉\nUsa `,
         beginningOfChatHistoryAdminRoomPartTwo: ' para chatear sobre temas como la configuración del espacio de trabajo y mas.',
-        beginningOfChatHistoryAdminOnlyPostingRoomPartOne: 'Utiliza ',
-        beginningOfChatHistoryAdminOnlyPostingRoomPartTwo: ({workspaceName}) => ` para enterarte de anuncios importantes relacionados con ${workspaceName}`,
+        beginningOfChatHistoryAdminOnlyPostingRoom: 'Solo los administradores pueden enviar mensajes en esta sala.',
         beginningOfChatHistoryAnnounceRoomPartOne: ({workspaceName}) => `Este es el lugar para que todos los miembros de ${workspaceName} colaboren! 🎉\nUsa `,
         beginningOfChatHistoryAnnounceRoomPartTwo: ({workspaceName}) => ` para chatear sobre cualquier cosa relacionada con ${workspaceName}.`,
         beginningOfChatHistoryUserRoomPartOne: 'Este es el lugar para colaborar! 🎉\nUsa este espacio para chatear sobre cualquier cosa relacionada con ',
@@ -321,6 +321,7 @@ export default {
         beginningOfChatHistoryPolicyExpenseChatPartThree: ' empieza aquí! 🎉 Este es el lugar donde chatear, pedir dinero y pagar.',
         chatWithAccountManager: 'Chatea con tu gestor de cuenta aquí',
         sayHello: '¡Saluda!',
+        welcomeToRoom: ({roomName}) => `¡Bienvenido a ${roomName}!`,
         usePlusButton: '\n\n¡También puedes usar el botón + de abajo para pedir dinero o asignar una tarea!',
     },
     reportAction: {
@@ -398,6 +399,11 @@ export default {
         pay: 'Pagar',
         viewDetails: 'Ver detalles',
         pending: 'Pendiente',
+        deleteReceipt: 'Eliminar recibo',
+        receiptScanning: 'Escaneo de recibo en curso…',
+        receiptStatusTitle: 'Escaneando…',
+        receiptStatusText: 'Solo tú puedes ver este recibo cuando se está escaneando. Vuelve más tarde o introduce los detalles ahora.',
+        requestCount: ({count, scanningReceipts = 0}) => `${count} solicitudes${scanningReceipts > 0 ? `, ${scanningReceipts} escaneando` : ''}`,
         deleteRequest: 'Eliminar pedido',
         deleteConfirmation: '¿Estás seguro de que quieres eliminar este pedido?',
         settledExpensify: 'Pagado',
@@ -423,7 +429,6 @@ export default {
         pendingConversionMessage: 'El total se actualizará cuando estés online',
         threadRequestReportName: ({formattedAmount, comment}) => `Solicitud de ${formattedAmount}${comment ? ` para ${comment}` : ''}`,
         threadSentMoneyReportName: ({formattedAmount, comment}) => `${formattedAmount} enviado${comment ? ` para ${comment}` : ''}`,
-        requestCount: ({count}) => `${count} solicitudes`,
         error: {
             invalidSplit: 'La suma de las partes no equivale al monto total',
             other: 'Error inesperado, por favor inténtalo más tarde',
@@ -2109,5 +2114,13 @@ export default {
     },
     stateSelectorModal: {
         placeholderText: 'Buscar para ver opciones',
+    },
+    demos: {
+        saastr: {
+            signInWelcome: '¡Bienvenido a SaaStr! Entra y empieza a establecer contactos.',
+        },
+        sbe: {
+            signInWelcome: '¡Bienvenido a Small Business Expo! Recupera el dinero de tu viaje.',
+        },
     },
 };
