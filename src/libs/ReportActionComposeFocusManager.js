@@ -2,28 +2,23 @@ import _ from 'underscore';
 import React from 'react';
 
 const composerRef = React.createRef();
+// There are two types of composer: general composer (edit composer) and main composer.
+// The general composer callback will take priority if it exists.
 let focusCallback = null;
-let focusActionItemCallback = null;
+let mainComposerFocusCallback = null;
 
 /**
  * Register a callback to be called when focus is requested.
  * Typical uses of this would be call the focus on the ReportActionComposer.
  *
  * @param {Function} callback callback to register
+ * @param {Boolean} isMainComposer
  */
-function onComposerFocus(callback, isActionItem = false) {
-    console.log("ReportActionComposeFocusManager:onComposerFocus["+isActionItem+"]");
-    if(isActionItem)
-    {
-        focusCallback = null;
-        console.log("ReportActionComposeFocusManager:CALLBACK[ReportActionCompose]");
+function onComposerFocus(callback, isMainComposer = false) {
+    if (isMainComposer) {
+        mainComposerFocusCallback = callback;
+    } else {
         focusCallback = callback;
-    }
-    else
-    {
-        console.log("ReportActionComposeFocusManager:CALLBACK[ReportActionMessageEdit]");
-        focusActionItemCallback = null;
-        focusActionItemCallback = callback;
     }
 }
 
@@ -32,15 +27,12 @@ function onComposerFocus(callback, isActionItem = false) {
  *
  */
 function focus() {
-    // console.log("ReportActionComposeFocusManager");
-    if (_.isObject(focusActionItemCallback)) {
-        console.log("ReportActionComposeFocusManager:FOCUS[ReportActionMessageEdit]");
-        focusActionItemCallback.current();
-        return;
-    }
-    if (_.isFunction(focusCallback)) {
-        console.log("ReportActionComposeFocusManager:FOCUS[ReportActionCompose]");
-        focusCallback();
+    if (!_.isFunction(focusCallback)) {
+        if (!_.isFunction(mainComposerFocusCallback)) {
+            return;
+        }
+
+        mainComposerFocusCallback();
         return;
     }
 }
@@ -48,18 +40,13 @@ function focus() {
 /**
  * Clear the registered focus callback
  *
+ * @param {Boolean} isMainComposer
  */
-function clear(isActionItem = false) {
-    // console.log("ReportActionComposeFocusManager");
-    if(isActionItem)
-    {
-        console.log("ReportActionComposeFocusManager:CLEAR[ReportActionCompose]");
+function clear(isMainComposer = false) {
+    if (isMainComposer) {
+        mainComposerFocusCallback = null;
+    } else {
         focusCallback = null;
-    }
-    else
-    {
-        console.log("ReportActionComposeFocusManager:CLEAR[ReportActionMessageEdit]");
-        focusActionItemCallback = null;
     }
 }
 
@@ -71,16 +58,10 @@ function isFocused() {
     return composerRef.current && composerRef.current.isFocused();
 }
 
-function isCurrentActionItem(onFocusCallback) {
-    console.log("focusActionItemCallback["+focusActionItemCallback+"],onFocusCallback["+onFocusCallback+"]");
-    return focusActionItemCallback === onFocusCallback;
-}
-
 export default {
     composerRef,
     onComposerFocus,
     focus,
     clear,
     isFocused,
-    isCurrentActionItem,
 };
