@@ -106,15 +106,36 @@ function ReportActionItemMessageEdit(props) {
     const [selection, setSelection] = useState({start: 0, end: 0});
     const [isFocused, setIsFocused] = useState(false);
     const [hasExceededMaxCommentLength, setHasExceededMaxCommentLength] = useState(false);
+    const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
+    const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
 
     const textInputRef = useRef(null);
     const isFocusedRef = useRef(false);
     const insertedEmojis = useRef([]);
+    const isContextMenuOpenRef = useRef(false);    
+    const isEmojiPickerOpenRef = useRef(false);    
 
     useEffect(() => {
         // required for keeping last state of isFocused variable
         isFocusedRef.current = isFocused;
     }, [isFocused]);
+
+    useEffect(() => {
+        isContextMenuOpenRef.current = isContextMenuOpen;
+    }, [isContextMenuOpen]);
+
+    useEffect(() => {
+        isEmojiPickerOpenRef.current = isEmojiPickerOpen;
+    }, [isEmojiPickerOpen]);
+
+    useEffect(() => {
+        return () => {
+            if ( isFocusedRef.current || isContextMenuOpenRef.current || isEmojiPickerOpenRef.current )
+            {
+                ComposerActions.setShouldShowComposeInput(true);
+            }
+        };
+    }, []);    
 
     useEffect(() => {
         // setFocusCallback(onFocusCallback);
@@ -277,8 +298,8 @@ function ReportActionItemMessageEdit(props) {
 
         // When user tries to save the empty message, it will delete it. Prompt the user to confirm deleting.
         if (!trimmedNewDraft) {
-            ReportActionContextMenu.showDeleteModal(props.reportID, props.action, false, deleteDraft, () => InteractionManager.runAfterInteractions(() => textInputRef.current.focus()));
-            return;
+            setIsContextMenuOpen(true);
+            ReportActionContextMenu.showDeleteModal(props.reportID, props.action, false, () => {setIsContextMenuOpen(false); setIsFocused(true); deleteDraft()}, () => {setIsContextMenuOpen(false);InteractionManager.runAfterInteractions(() => textInputRef.current.focus());});            return;
         }
         Report.editReportComment(props.reportID, props.action, trimmedNewDraft);
         deleteDraft();
@@ -399,7 +420,11 @@ function ReportActionItemMessageEdit(props) {
                     <View style={styles.editChatItemEmojiWrapper}>
                         <EmojiPickerButton
                             isDisabled={props.shouldDisableEmojiPicker}
+                            onModalShown={() => {
+                                setIsEmojiPickerOpen(true);
+                            }}                            
                             onModalHide={() => {
+                                setIsEmojiPickerOpen(false);                                
                                 setIsFocused(true);
                                 focus(true);
                             }}
