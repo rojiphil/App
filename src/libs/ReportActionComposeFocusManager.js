@@ -35,6 +35,8 @@ function focus() {
         mainComposerFocusCallback();
         return;
     }
+
+    focusCallback();
 }
 
 /**

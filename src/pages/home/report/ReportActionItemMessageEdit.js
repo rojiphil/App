@@ -234,19 +234,6 @@ function ReportActionItemMessageEdit(props) {
     const deleteDraft = useCallback(() => {
         debouncedSaveDraft.cancel();
         Report.saveReportActionDraft(props.reportID, props.action.reportActionID, '');
-<<<<<<< HEAD
-        // if (isFocusedRef.current)
-        // {
-        //     ReportActionComposeFocusManager.clear(true);
-        //     console.log("setShouldShowComposeInput[In MESSAGE_EDIT_DELETE DRAFT]");
-        //     ComposerActions.setShouldShowComposeInput(true);
-        // }
-        // ReportActionComposeFocusManager.focus();
-=======
-        ComposerActions.setShouldShowComposeInput(true);
-        ReportActionComposeFocusManager.clear();
-        ReportActionComposeFocusManager.focus();
->>>>>>> f3af8ce1ccecc013670798fe2e8118c7f0c1a525
 
         // Scroll to the last comment after editing to make sure the whole comment is clearly visible in the report.
         if (props.index === 0) {
