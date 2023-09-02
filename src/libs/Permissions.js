@@ -83,14 +83,6 @@ function canUseTasks(betas) {
  * @param {Array<String>} betas
  * @returns {Boolean}
  */
-function canUseScanReceipts(betas) {
-    return _.contains(betas, CONST.BETAS.SCAN_RECEIPTS) || canUseAllBetas(betas);
-}
-
-/**
- * @param {Array<String>} betas
- * @returns {Boolean}
- */
 function canUseCustomStatus(betas) {
     return _.contains(betas, CONST.BETAS.CUSTOM_STATUS) || canUseAllBetas(betas);
 }
@@ -120,7 +112,6 @@ export default {
     canUseCommentLinking,
     canUsePolicyRooms,
     canUseTasks,
-    canUseScanReceipts,
     canUseCustomStatus,
     canUseDistanceRequests,
     canUseLinkPreviews,
