@@ -302,7 +302,7 @@ function getOptionData(report, reportActions, personalDetails, preferredLocale, 
         });
     }
 
-    if ((result.isChatRoom || result.isPolicyExpenseChat || result.isThread || result.isTaskReport) && !result.isArchivedRoom) {
+    if ((result.isChatRoom || result.isPolicyExpenseChat || result.isThread || result.isTaskReport || result.isMoneyRequestReport) && !result.isArchivedRoom) {
         const lastAction = visibleReportActionItems[report.reportID];
         if (lodashGet(lastAction, 'actionName', '') === CONST.REPORT.ACTIONS.TYPE.RENAMED) {
             const newName = lodashGet(lastAction, 'originalMessage.newName', '');
@@ -311,7 +311,17 @@ function getOptionData(report, reportActions, personalDetails, preferredLocale, 
             result.alternateText = `${Localize.translate(preferredLocale, 'task.messages.reopened')}: ${report.reportName}`;
         } else if (lodashGet(lastAction, 'actionName', '') === CONST.REPORT.ACTIONS.TYPE.TASKCOMPLETED) {
             result.alternateText = `${Localize.translate(preferredLocale, 'task.messages.completed')}: ${report.reportName}`;
-        } else {
+        } 
+        else if (lodashGet(lastAction, 'actionName', '') === CONST.REPORT.ACTIONS.TYPE.IOU && ReportActionsUtils.isDeletedParentAction(lastAction)) {
+            result.alternateText = Localize.translate(preferredLocale, 'parentReportAction.deletedRequest');
+            console.log("Deleted IOU Transaction Thread:reportID["+report.reportID+"],reportActionID["+lastAction.reportActionID+"],alternateText["+result.alternateText+"]");
+        } 
+        // else if (lastMessageTextFromReport.length === 0 && ReportUtils.isIOUReport(report) && lodashGet(lastAction, 'actionName', '') === CONST.REPORT.ACTIONS.TYPE.ADDCOMMENT) {
+        //     console.log("Previous Action Message for IOU Report:reportID["+report.reportID+"],reportActionID["+lastAction.reportActionID+"],alternateText["+result.alternateText+"]");
+        //     console.dir(lastAction);            
+        //     result.alternateText = ReportActionsUtils.getLastVisibleMessage(report.reportID).lastMessageText;
+        // }  
+        else {
             result.alternateText = lastMessageTextFromReport.length > 0 ? lastMessageText : Localize.translate(preferredLocale, 'report.noActivityYet');
         }
     } else {
