@@ -1125,7 +1125,7 @@ function deleteMoneyRequest(transactionID, reportAction, isSingleTransactionView
     
     // STEP 4: Update the iouReport and reportPreview with new totals and messages if it wasn't deleted
     let updatedIOUReport = null;
-    let updatedReportPreviewAction = null;
+    let updatedReportPreviewAction = {...reportPreviewAction};
     if (!shouldDeleteIOUReport) {
         if (ReportUtils.isExpenseReport(iouReport)) {
             updatedIOUReport = {...iouReport};
@@ -1145,7 +1145,6 @@ function deleteMoneyRequest(transactionID, reportAction, isSingleTransactionView
         updatedIOUReport.lastMessageText = iouReportLastMessageText;
         updatedIOUReport.lastVisibleActionCreated = lastVisibleAction.created;
 
-        updatedReportPreviewAction = {...reportPreviewAction};
         const messageText = Localize.translateLocal('iou.payerOwesAmount', {
             payer: updatedIOUReport.managerEmail,
             amount: CurrencyUtils.convertToDisplayString(updatedIOUReport.total, updatedIOUReport.currency),
@@ -1154,7 +1153,13 @@ function deleteMoneyRequest(transactionID, reportAction, isSingleTransactionView
         updatedReportPreviewAction.message[0].html = messageText;
         if (reportPreviewAction.childMoneyRequestCount > 0) {
             updatedReportPreviewAction.childMoneyRequestCount = reportPreviewAction.childMoneyRequestCount - 1;
-        }  
+        }
+    }
+
+    if(shouldDeleteIOUReport)
+    {
+        updatedReportPreviewAction.pendingAction = CONST.RED_BRICK_ROAD_PENDING_ACTION.DELETE;
+        updatedReportPreviewAction.errors = null;
     }
 
     // STEP 5: Build Onyx data
