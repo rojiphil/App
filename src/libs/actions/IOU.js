@@ -69,6 +69,12 @@ Onyx.connect({
     },
 });
 
+let isNetworkOffline = false;
+Onyx.connect({
+    key: ONYXKEYS.NETWORK,
+    callback: (val) => (isNetworkOffline = lodashGet(val, 'isOffline', false)),
+});
+
 /**
  * Reset money request info from the store with its initial value
  * @param {String} id
@@ -1208,6 +1214,13 @@ function deleteMoneyRequest(transactionID, reportAction, isSingleTransactionView
     ];
 
     const successData = [
+        {
+            onyxMethod: Onyx.METHOD.MERGE,
+            key: `${ONYXKEYS.COLLECTION.REPORT_ACTIONS}${iouReport.reportID}`,
+            value: {
+                [reportAction.reportActionID]: {pendingAction: null},
+            },
+        },
         ...(shouldDeleteIOUReport
             ? [
                 {
@@ -1235,13 +1248,6 @@ function deleteMoneyRequest(transactionID, reportAction, isSingleTransactionView
                 },
               ]
             : []),        
-            {
-                onyxMethod: Onyx.METHOD.MERGE,
-                key: `${ONYXKEYS.COLLECTION.REPORT_ACTIONS}${iouReport.reportID}`,
-                value: {
-                    [reportAction.reportActionID]: {pendingAction: null},
-                },
-            },
         ];
 
     const failureData = [
