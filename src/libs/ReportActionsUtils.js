@@ -8,6 +8,7 @@ import * as CollectionUtils from './CollectionUtils';
 import CONST from '../CONST';
 import ONYXKEYS from '../ONYXKEYS';
 import Log from './Log';
+import * as Localize from './Localize';
 import isReportMessageAttachment from './isReportMessageAttachment';
 
 const allReports = {};
@@ -397,7 +398,7 @@ function getLastVisibleMessage(reportID, actionsToMerge = {}) {
     if (isReportMessageAttachment(message)) {
         return {
             lastMessageTranslationKey: CONST.TRANSLATION_KEYS.ATTACHMENT,
-            lastMessageText: CONST.TRANSLATION_KEYS.ATTACHMENT,
+            lastMessageText: Localize.translateLocal(CONST.TRANSLATION_KEYS.ATTACHMENT),
             lastMessageHtml: CONST.TRANSLATION_KEYS.ATTACHMENT,
         };
     }

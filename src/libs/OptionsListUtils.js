@@ -391,8 +391,9 @@ function getLastMessageTextForReport(report) {
     );
     let lastMessageTextFromReport = '';
 
-    if (ReportUtils.isReportMessageAttachment({text: report.lastMessageText, html: report.lastMessageHtml, translationKey: report.lastMessageTranslationKey})) {
+    if (ReportUtils.isReportMessageAttachment({text: report.lastMessageText, html: report.lastMessageHtml})) {
         lastMessageTextFromReport = `[${Localize.translateLocal(report.lastMessageTranslationKey || 'common.attachment')}]`;
+        console.log("ForAttachment:lastMessageTextFromReport["+lastMessageTextFromReport+"]");
     } else if (ReportActionUtils.isMoneyRequestAction(lastReportAction)) {
         lastMessageTextFromReport = ReportUtils.getReportPreviewMessage(report, lastReportAction);
     } else if (ReportActionUtils.isReportPreviewAction(lastReportAction)) {
@@ -415,6 +416,7 @@ function getLastMessageTextForReport(report) {
             lastMessageTextFromReport = lodashGet(latestVisibleAction, 'message[0].text', '');
         }
     }
+    console.log("getLastMessageTextForReport:lastMessageTextFromReport["+lastMessageTextFromReport+"]");
     return lastMessageTextFromReport;
 }
 
