@@ -1331,27 +1331,6 @@ function deleteMoneyRequest(transactionID, reportAction, isSingleTransactionView
     }
 }
 
-function deleteIOUReport(reportPreviewAction,chatReportID) {
-    const iouReportID = ReportActionsUtils.getIOUReportIDFromReportActionPreview(reportPreviewAction);
-    // Step 1: Reset the IOUReport and IOUReport Actions
-    Onyx.set(`${ONYXKEYS.COLLECTION.REPORT_ACTIONS}${iouReportID}`, null);    
-    Onyx.set(`${ONYXKEYS.COLLECTION.REPORT}${iouReportID}`, null);    
-
-    // Step 2: Reset the ReportPreview in ChatReport
-    Onyx.merge(`${ONYXKEYS.COLLECTION.REPORT_ACTIONS}${chatReportID}`, {[reportPreviewAction.reportActionID]: null});    
-
-    // Step 3: Update the ChatReport to reflect the deleted IOUReport
-    Onyx.merge(`${ONYXKEYS.COLLECTION.REPORT}${chatReportID}`, {
-        hasOutstandingIOU: false,
-        iouReportID: null,
-        lastMessageText: ReportActionsUtils.getLastVisibleMessage(chatReportID, {[reportPreviewAction.reportActionID]: null}).lastMessageText,
-        lastVisibleActionCreated: ReportActionsUtils.getLastVisibleAction(chatReportID, {[reportPreviewAction.reportActionID]: null}).created,
-    });    
-    // Step 4: Navigate back to ChatReport after popping the deleted report 
-    Navigation.goBack();
-    Navigation.navigate(ROUTES.getReportRoute(chatReportID));
-}
-
 /**
  * @param {Number} amount
  * @param {String} submitterPayPalMeAddress
@@ -1974,5 +1953,4 @@ export {
     setMoneyRequestReceipt,
     createEmptyTransaction,
     navigateToNextPage,
-    deleteIOUReport,
 };

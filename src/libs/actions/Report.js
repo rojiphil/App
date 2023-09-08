@@ -1020,33 +1020,6 @@ function deleteReportComment(reportID, reportAction) {
     );
     if (!_.isEmpty(optimisticParentReportData)) {
         optimisticData.push(optimisticParentReportData);
-
-        // If the visible children for the child report is 0 and if the parent action is in deleted state, 
-        // the LHN of Parent Report will not get updated if deleted parent action is the most recent one in the report
-        // The solution is to update the parent report here with the last message that is immediately previous visible one of the deleted parent action.
-        const currentReport = ReportUtils.getReport(reportID);
-        console.log("childVisibleActionCount["+optimisticParentReportData.value[currentReport.parentReportActionID].childVisibleActionCount+"]");
-        if(optimisticParentReportData.value[currentReport.parentReportActionID].childVisibleActionCount === 0)
-        {
-            const {lastMessageText = '', lastMessageTranslationKey = ''} = ReportActionsUtils.getLastVisibleMessage(currentReport.parentReportID, optimisticParentReportData.value);
-            console.log("lastMessageText["+lastMessageText+"],lastMessageTranslationKey["+lastMessageTranslationKey+"]");
-            const lastVisibleAction = ReportActionsUtils.getLastVisibleAction(currentReport.parentReportID, optimisticParentReportData.value);
-            const lastVisibleActionCreated = lastVisibleAction.created;
-            const lastActorAccountID = lastVisibleAction.actorAccountID;
-            optimisticData.push(
-                {
-                    onyxMethod: Onyx.METHOD.MERGE,
-                    key: `${ONYXKEYS.COLLECTION.REPORT}${currentReport.parentReportID}`,
-                    value:{
-                        lastMessageTranslationKey,
-                        lastMessageText,
-                        lastVisibleActionCreated,
-                        lastActorAccountID,
-                        lastModified:DateUtils.getDBTime(),
-                        },
-                }
-            );
-        }        
     }
 
     // Check to see if the report action we are deleting is the first comment on a thread report. In this case, we need to trigger

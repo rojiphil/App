@@ -254,51 +254,8 @@ class PopoverReportActionContextMenu extends React.Component {
         if (ReportActionsUtils.isMoneyRequestAction(this.state.reportAction)) {
             IOU.deleteMoneyRequest(this.state.reportAction.originalMessage.IOUTransactionID, this.state.reportAction);
         } else {
-            const report = ReportUtils.getReport(this.state.reportID);
-            // if(ReportUtils.isIOUReport(report))
-            // {
-            //     console.log("IOUReport["+this.state.reportID+"]");
-            //     const updatedReportAction = {
-            //         [this.state.reportAction.reportActionID]: {
-            //             message: [
-            //                 {
-            //                     type: 'COMMENT',
-            //                     html: '',
-            //                     text: '',
-            //                     isEdited: true,
-            //                 },
-            //             ],
-            //         },
-            //     };
-            //     const lastVisibleAction = ReportActionsUtils.getLastVisibleAction(this.state.reportID, updatedReportAction);
-            //     const iouReportLastMessageText = ReportActionsUtils.getLastVisibleMessage(this.state.reportID, updatedReportAction).lastMessageText;
-            //     if(iouReportLastMessageText.length === 0 && !ReportActionsUtils.isDeletedParentAction(lastVisibleAction))
-            //     {
-            //         this.state.reportAction.originalMessage.IOUReportID = this.state.reportID;
-            //         console.log("About to call DeleteMoneyRequest for last comment");
-            //         IOU.deleteMoneyRequest(this.state.reportAction.originalMessage.IOUTransactionID, this.state.reportAction);
-            //         return;
-            //     }
-            // }
             console.log("DELETING REPORT COMMENT");
             Report.deleteReportComment(this.state.reportID, this.state.reportAction);
-
-
-            // Report.deleteReportComment(this.state.reportID, this.state.reportAction);
-            // Check if we are deleting a comment within a thread chat. If so, let us check if we have come here due to 
-            // a deletion of the last comment in the money request and when there are no more money request left.
-            // If so, let us delete the IOU report and it's references
-            const parentReportAction = ReportActionsUtils.getParentReportAction(report);
-            console.log("ReportID["+this.state.reportID+"]");
-            console.log("Report-"+this.state.reportID+"[object],ReportAction-"+this.state.reportID+"[Object],parentReportAction[Object]");
-            console.dir(report);
-            console.dir(this.state.reportAction);
-            console.dir(parentReportAction);
-            // if(parentReportAction && ReportUtils.isThreadFirstChat(parentReportAction, this.state.reportID) && ReportActionsUtils.isReportPreviewAction(parentReportAction) && (parentReportAction.childMoneyRequestCount === 0) && (parentReportAction.childVisibleActionCount === 1))
-            // {
-            //     console.log("Last Comment: Deleting Money Request Trnsaction Thread");
-            //     IOU.deleteIOUReport(parentReportAction,report.chatReportID);
-            // }            
         }
         this.setState({isDeleteCommentConfirmModalVisible: false});
     }
