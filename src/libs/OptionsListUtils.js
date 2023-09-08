@@ -391,7 +391,7 @@ function getLastMessageTextForReport(report) {
     );
     let lastMessageTextFromReport = '';
 
-    if (ReportUtils.isReportMessageAttachment({text: report.lastMessageText, html: report.lastMessageHtml})) {
+    if (ReportUtils.isReportMessageAttachment({text: report.lastMessageText, html: report.lastMessageHtml, translationKey: report.lastMessageTranslationKey})) {
         lastMessageTextFromReport = `[${Localize.translateLocal(report.lastMessageTranslationKey || 'common.attachment')}]`;
         console.log("ForAttachment:lastMessageTextFromReport["+lastMessageTextFromReport+"]");
     } else if (ReportActionUtils.isMoneyRequestAction(lastReportAction)) {
