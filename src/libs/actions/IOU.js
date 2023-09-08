@@ -70,12 +70,6 @@ Onyx.connect({
     },
 });
 
-let isNetworkOffline = false;
-Onyx.connect({
-    key: ONYXKEYS.NETWORK,
-    callback: (val) => (isNetworkOffline = lodashGet(val, 'isOffline', false)),
-});
-
 /**
  * Reset money request info from the store with its initial value
  * @param {String} id

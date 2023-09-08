@@ -9,7 +9,6 @@ import BaseReportActionContextMenu from './BaseReportActionContextMenu';
 import ConfirmModal from '../../../../components/ConfirmModal';
 import CONST from '../../../../CONST';
 import * as ReportActionsUtils from '../../../../libs/ReportActionsUtils';
-import * as ReportUtils from '../../../../libs/ReportUtils';
 import * as IOU from '../../../../libs/actions/IOU';
 
 const propTypes = {
@@ -254,7 +253,6 @@ class PopoverReportActionContextMenu extends React.Component {
         if (ReportActionsUtils.isMoneyRequestAction(this.state.reportAction)) {
             IOU.deleteMoneyRequest(this.state.reportAction.originalMessage.IOUTransactionID, this.state.reportAction);
         } else {
-            console.log("DELETING REPORT COMMENT");
             Report.deleteReportComment(this.state.reportID, this.state.reportAction);
         }
         this.setState({isDeleteCommentConfirmModalVisible: false});

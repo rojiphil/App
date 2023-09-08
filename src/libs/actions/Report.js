@@ -918,9 +918,6 @@ Onyx.connect({
  */
 function deleteReportComment(reportID, reportAction) {
     const originalReportID = ReportUtils.getOriginalReportID(reportID, reportAction);
-    const myReportAction = reportAction;
-    console.log('Deleting Report Comment[' + reportID + '],originalReportID['+originalReportID+'],ReportActionID[' + myReportAction.reportActionID + ']');
-    console.dir(myReportAction);    
     const reportActionID = reportAction.reportActionID;
     const deletedMessage = [
         {
