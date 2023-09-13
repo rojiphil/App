@@ -348,15 +348,10 @@ function shouldReportActionBeVisible(reportAction, key) {
         return false;
     }
 
-    // Display action if this is a thread parent
-    if(isDeletedParentAction(reportAction)) {
-        return true;
-    }    
-
     // All other actions are displayed except deleted, or non-pending actions
     const isDeleted = isDeletedAction(reportAction);
     const isPending = !_.isEmpty(reportAction.pendingAction);
-    return !isDeleted || isPending;
+    return !isDeleted || isPending || isDeletedParentAction(reportAction);
 }
 
 /**
@@ -375,7 +370,7 @@ function shouldReportActionBeVisibleAsLastAction(reportAction) {
         return false;
     }
 
-    return shouldReportActionBeVisible(reportAction, reportAction.reportActionID) && !isWhisperAction(reportAction);
+    return shouldReportActionBeVisible(reportAction, reportAction.reportActionID) && !isWhisperAction(reportAction) && !isDeletedAction(reportAction);
 }
 
 /**
