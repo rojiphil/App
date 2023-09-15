@@ -10,6 +10,7 @@ import ONYXKEYS from '../ONYXKEYS';
 import Log from './Log';
 import isReportMessageAttachment from './isReportMessageAttachment';
 import { isChatReport } from './ReportUtils';
+import * as Localize from './Localize';
 
 const allReports = {};
 Onyx.connect({
@@ -373,7 +374,7 @@ function shouldReportActionBeVisibleAsLastAction(reportAction) {
 
     // If a whisper action is the REPORTPREVIEW action, we are displaying it.
     return (
-        shouldReportActionBeVisible(reportAction, reportAction.reportActionID) && !(isWhisperAction(reportAction) && !isReportPreviewAction(reportAction)) && !isDeletedAction(reportAction)
+        shouldReportActionBeVisible(reportAction, reportAction.reportActionID) && !(isWhisperAction(reportAction) && !isReportPreviewAction(reportAction)) && !(isDeletedAction(reportAction) && !isDeletedParentAction(reportAction))
     );
 }
 
@@ -420,7 +421,7 @@ function getLastVisibleMessage(reportID, actionsToMerge = {}) {
     {
         console.log("getLastVisibleMessage:isDeletedParentAction");
         return {
-            lastMessageText: Localize.translate(preferredLocale, 'parentReportAction.deletedMessage'),
+            lastMessageText: Localize.translateLocal('parentReportAction.deletedMessage'),
         };
     }
 
