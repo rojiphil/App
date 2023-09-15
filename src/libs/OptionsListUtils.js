@@ -400,7 +400,10 @@ function getLastMessageTextForReport(report) {
         lastMessageTextFromReport = ReportUtils.getReportPreviewMessage(iouReport, lastReportAction);
     } else if (ReportActionUtils.isModifiedExpenseAction(lastReportAction)) {
         lastMessageTextFromReport = ReportUtils.getModifiedExpenseMessage(lastReportAction);
-    } else {
+    } else if (ReportActionUtils.isDeletedParentAction(lastReportAction) && ReportUtils.isChatReport(report)) {
+        lastMessageTextFromReport = Localize.translate(preferredLocale, 'parentReportAction.deletedMessage');          
+        console.log("getLastMessageTextForReport,chatReport's LastMessage["+lastMessageTextFromReport+"]");
+    }else {
         lastMessageTextFromReport = report ? report.lastMessageText || '' : '';
 
         // Yeah this is a bit ugly. If the latest report action that is not a whisper has been moderated as pending remove

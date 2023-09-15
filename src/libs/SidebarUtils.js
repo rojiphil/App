@@ -315,23 +315,23 @@ function getOptionData(report, reportActions, personalDetails, preferredLocale, 
             result.alternateText = lastMessageTextFromReport.length > 0 ? lastMessageText : Localize.translate(preferredLocale, 'report.noActivityYet');
         }
     } else {
-        const lastAction = visibleReportActionItems[report.reportID];
-        console.log("lastAction[Object],reportID["+report.reportID+"],lastMessageText["+lastMessageText+"]");
-        console.dir(lastAction);
-        if (lastAction && lodashGet(lastAction, 'actionName', '') === CONST.REPORT.ACTIONS.TYPE.ADDCOMMENT && ReportActionsUtils.isDeletedParentAction(lastAction)) {
-            // Called when Parent Report has a most recent visible action that has a thread which is deleted but has more than one visible child comments.  
-            result.alternateText = Localize.translate(preferredLocale, 'parentReportAction.deletedMessage');
-            console.log("DeletedThread,alternateText["+result.alternateText+"]");
-        }
-        else if (lastAction && lodashGet(lastAction, 'actionName', '') === CONST.REPORT.ACTIONS.TYPE.ADDCOMMENT && lodashGet(lastAction, 'pendingAction', null) === CONST.RED_BRICK_ROAD_PENDING_ACTION.DELETE) {
-            // For a deleted comment, it is possible that the last action is referring to this deleted comment. 
-            // This only occurs for a short period of time before it is updated with the new last action.   
-            // In this case, let us simply return the original message text.  
-            result.alternateText = lodashGet(lastAction, 'previousMessage[0].html');
-            console.log("DeletedComment,alternateText["+result.alternateText+"]");
-        }
-        else
-        {        
+        // const lastAction = visibleReportActionItems[report.reportID];
+        // console.log("lastAction[Object],reportID["+report.reportID+"],lastMessageText["+lastMessageText+"]");
+        // console.dir(lastAction);
+        // if (lastAction && lodashGet(lastAction, 'actionName', '') === CONST.REPORT.ACTIONS.TYPE.ADDCOMMENT && ReportActionsUtils.isDeletedParentAction(lastAction)) {
+        //     // Called when Parent Report has a most recent visible action that has a thread which is deleted but has more than one visible child comments.  
+        //     result.alternateText = Localize.translate(preferredLocale, 'parentReportAction.deletedMessage');
+        //     console.log("DeletedThread,alternateText["+result.alternateText+"]");
+        // }
+        // else if (lastAction && lodashGet(lastAction, 'actionName', '') === CONST.REPORT.ACTIONS.TYPE.ADDCOMMENT && lodashGet(lastAction, 'pendingAction', null) === CONST.RED_BRICK_ROAD_PENDING_ACTION.DELETE) {
+        //     // For a deleted comment, it is possible that the last action is referring to this deleted comment. 
+        //     // This only occurs for a short period of time before it is updated with the new last action.   
+        //     // In this case, let us simply return the original message text.  
+        //     result.alternateText = lodashGet(lastAction, 'previousMessage[0].html');
+        //     console.log("DeletedComment,alternateText["+result.alternateText+"]");
+        // }
+        // else
+        // {        
         if (!lastMessageText) {
             // Here we get the beginning of chat history message and append the display name for each user, adding pronouns if there are any.
             // We also add a fullstop after the final name, the word "and" before the final name and commas between all previous names.
@@ -352,7 +352,7 @@ function getOptionData(report, reportActions, personalDetails, preferredLocale, 
                 }).join(' ');
         }
         result.alternateText = lastMessageText || formattedLogin;
-        }
+        // }
     }
 
     result.isIOUReportOwner = ReportUtils.isIOUOwnedByCurrentUser(result);

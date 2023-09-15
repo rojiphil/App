@@ -9,6 +9,7 @@ import CONST from '../CONST';
 import ONYXKEYS from '../ONYXKEYS';
 import Log from './Log';
 import isReportMessageAttachment from './isReportMessageAttachment';
+import { isChatReport } from './ReportUtils';
 
 const allReports = {};
 Onyx.connect({
@@ -412,6 +413,14 @@ function getLastVisibleMessage(reportID, actionsToMerge = {}) {
     if (isCreatedAction(lastVisibleAction)) {
         return {
             lastMessageText: '',
+        };
+    }
+
+    if(isDeletedParentAction(lastVisibleAction) && isChatReport(reportID))
+    {
+        console.log("getLastVisibleMessage:isDeletedParentAction");
+        return {
+            lastMessageText: Localize.translate(preferredLocale, 'parentReportAction.deletedMessage'),
         };
     }
 

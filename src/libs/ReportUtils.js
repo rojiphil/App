@@ -152,7 +152,8 @@ function getReportParticipantsTitle(accountIDs) {
  * @param {Object} report
  * @returns {Boolean}
  */
-function isChatReport(report) {
+function isChatReport(reportOrID) {
+    const report = _.isObject(reportOrID) ? reportOrID : allReports[`${ONYXKEYS.COLLECTION.REPORT}${reportOrID}`];
     return lodashGet(report, 'type') === CONST.REPORT.TYPE.CHAT;
 }
 
