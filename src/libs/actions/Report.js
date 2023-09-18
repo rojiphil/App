@@ -1803,10 +1803,6 @@ function openReportFromDeepLink(url, isAuthenticated) {
     // Navigate to the report after sign-in/sign-up.
     InteractionManager.runAfterInteractions(() => {
         Session.waitForUserSignIn().then(() => {
-            if (reportID) {
-                Navigation.navigate(ROUTES.getReportRoute(reportID), CONST.NAVIGATION.TYPE.UP);
-                return;
-            }
             if (route === ROUTES.CONCIERGE) {
                 navigateToConciergeChat();
                 return;
