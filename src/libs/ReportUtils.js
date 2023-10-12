@@ -3028,7 +3028,7 @@ function shouldReportBeInOptionList(report, currentReportId, isInGSDMode, betas,
         !report ||
         !report.reportID ||
         report.isHidden ||
-        !report.participantAccountIDs ||
+        !report.type ||
         (report.participantAccountIDs &&
             report.participantAccountIDs.length === 0 &&
             !isChatThread(report) &&
