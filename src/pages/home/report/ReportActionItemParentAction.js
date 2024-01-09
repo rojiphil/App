@@ -13,6 +13,7 @@ import * as ReportActionsUtils from '@libs/ReportActionsUtils';
 import reportPropTypes from '@pages/reportPropTypes';
 import * as Report from '@userActions/Report';
 import ONYXKEYS from '@src/ONYXKEYS';
+import CONST from '@src/CONST';
 import AnimatedEmptyStateBackground from './AnimatedEmptyStateBackground';
 import ReportActionItem from './ReportActionItem';
 import reportActionPropTypes from './reportActionPropTypes';
@@ -28,6 +29,9 @@ const propTypes = {
     // eslint-disable-next-line react/no-unused-prop-types
     parentReportID: PropTypes.string.isRequired,
 
+    /** All the data of the action item */
+    reportAction: PropTypes.shape(reportActionPropTypes),
+
     /** ONYX PROPS */
 
     /** The report currently being looked at */
@@ -41,6 +45,7 @@ const propTypes = {
 };
 const defaultProps = {
     report: {},
+    reportAction: undefined,
     parentReportActions: {},
     shouldHideThreadDividerLine: false,
 };
@@ -62,20 +67,23 @@ function ReportActionItemParentAction(props) {
             errorRowStyles={[styles.ml10, styles.mr2]}
             onClose={() => Report.navigateToConciergeChatAndDeleteReport(props.report.reportID)}
         >
-            <View style={StyleUtils.getReportWelcomeContainerStyle(props.isSmallScreenWidth)}>
-                <AnimatedEmptyStateBackground />
-                <View style={[styles.p5, StyleUtils.getReportWelcomeTopMarginStyle(props.isSmallScreenWidth)]} />
-                {parentReportAction && (
-                    <ReportActionItem
-                        report={props.report}
-                        action={parentReportAction}
-                        displayAsGroup={false}
-                        isMostRecentIOUReportAction={false}
-                        shouldDisplayNewMarker={props.shouldDisplayNewMarker}
-                        index={0}
-                    />
-                )}
-            </View>
+            {props.reportAction && props.reportAction.actionName === CONST.REPORT.ACTIONS.TYPE.CREATED && (
+                <View style={StyleUtils.getReportWelcomeContainerStyle(props.isSmallScreenWidth)}>
+                    <AnimatedEmptyStateBackground />
+                    <View style={[styles.p5, StyleUtils.getReportWelcomeTopMarginStyle(props.isSmallScreenWidth)]} />
+                </View>
+            )}
+            {parentReportAction && (
+                <ReportActionItem
+                    report={props.report}
+                    action={parentReportAction}
+                    displayAsGroup={false}
+                    isMostRecentIOUReportAction={false}
+                    shouldDisplayNewMarker={props.shouldDisplayNewMarker}
+                    index={0}
+                    onPress={() => Report.navigateToAndOpenChildReport(props.parentReportID)}
+                />
+            )}
             {!props.shouldHideThreadDividerLine && <View style={[styles.threadDividerLine]} />}
         </OfflineWithFeedback>
     );

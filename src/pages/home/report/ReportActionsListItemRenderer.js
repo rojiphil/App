@@ -50,17 +50,20 @@ function ReportActionsListItemRenderer({
     shouldDisplayNewMarker,
     linkedReportActionID,
 }) {
+    const childReport = ReportUtils.getReport(reportAction.childReportID);    
+    const isParentReportAction = !_.isEmpty(childReport) && childReport.parentReportID !== report.reportID;
     const shouldDisplayParentAction =
-        reportAction.actionName === CONST.REPORT.ACTIONS.TYPE.CREATED &&
+        (isParentReportAction || reportAction.actionName === CONST.REPORT.ACTIONS.TYPE.CREATED) && 
         ReportUtils.isChatThread(report) &&
         !ReportActionsUtils.isTransactionThread(ReportActionsUtils.getParentReportAction(report));
 
     return shouldDisplayParentAction ? (
         <ReportActionItemParentAction
             shouldHideThreadDividerLine={shouldDisplayParentAction && shouldHideThreadDividerLine}
-            reportID={report.reportID}
-            parentReportID={`${report.parentReportID}`}
+            reportID={childReport.reportID}
+            parentReportID={`${childReport.parentReportID}`}
             shouldDisplayNewMarker={shouldDisplayNewMarker}
+            reportAction={reportAction}
         />
     ) : (
         <ReportActionItem

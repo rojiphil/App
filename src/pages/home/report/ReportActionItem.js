@@ -662,6 +662,7 @@ function ReportActionItem(props) {
         <PressableWithSecondaryInteraction
             ref={popoverAnchorRef}
             style={[props.action.pendingAction === CONST.RED_BRICK_ROAD_PENDING_ACTION.DELETE ? styles.pointerEventsNone : styles.pointerEventsAuto]}
+            onPress={props.onPress}
             onPressIn={() => props.isSmallScreenWidth && DeviceCapabilities.canUseTouchScreen() && ControlSelection.block()}
             onPressOut={() => ControlSelection.unblock()}
             onSecondaryInteraction={showPopover}

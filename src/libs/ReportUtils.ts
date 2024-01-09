@@ -3941,6 +3941,16 @@ function canUserPerformWriteAction(report: OnyxEntry<Report>) {
     return !isArchivedRoom(report) && isEmptyObject(reportErrors) && report && isAllowedToComment(report) && !isAnonymousUser;
 }
 
+function getAncestorReportActions(reportID: string, reportActions: OnyxEntry<ReportAction>[] | null) {
+    const report = getReport(reportID);
+    if(report?.parentReportID && report?.parentReportActionID) {
+        const parentReportAction = ReportActionsUtils.getReportAction(report?.parentReportID ?? '', report?.parentReportActionID ?? '');            
+        reportActions?.push(parentReportAction);
+        getAncestorReportActions(report?.parentReportID, reportActions);
+    }
+    return reportActions;
+}
+
 /**
  * Returns ID of the original report from which the given reportAction is first created.
  */
@@ -4487,6 +4497,7 @@ export {
     getBankAccountRoute,
     getParentReport,
     getRootParentReport,
+    getAncestorReportActions,
     getReportPreviewMessage,
     canUserPerformWriteAction,
     getOriginalReportID,

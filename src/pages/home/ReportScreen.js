@@ -178,8 +178,18 @@ function ReportScreen({
     const {addWorkspaceRoomOrChatPendingAction, addWorkspaceRoomOrChatErrors} = ReportUtils.getReportOfflinePendingActionAndErrors(report);
     const screenWrapperStyle = [styles.appContent, styles.flex1, {marginTop: viewportOffsetTop}];
 
+    const reportActionsWithAncestors = useMemo(() => {
+        const ancestorReportActions = [];
+        ReportUtils.getAncestorReportActions(reportID,ancestorReportActions);    
+        if(!ancestorReportActions.length) {
+            return reportActions;
+        }
+        const createdReportAction = reportActions.pop();
+        return [...reportActions, ...ancestorReportActions, createdReportAction];
+    }, [reportActions]);
+    
     // There are no reportActions at all to display and we are still in the process of loading the next set of actions.
-    const isLoadingInitialReportActions = _.isEmpty(reportActions) && reportMetadata.isLoadingInitialReportActions;
+    const isLoadingInitialReportActions = _.isEmpty(reportActionsWithAncestors) && reportMetadata.isLoadingInitialReportActions;
 
     const isOptimisticDelete = lodashGet(report, 'statusNum') === CONST.REPORT.STATUS.CLOSED;
 
@@ -486,7 +496,7 @@ function ReportScreen({
                             >
                                 {isReportReadyForDisplay && !isLoadingInitialReportActions && !isLoading && (
                                     <ReportActionsView
-                                        reportActions={reportActions}
+                                        reportActions={reportActionsWithAncestors}
                                         report={report}
                                         isLoadingInitialReportActions={reportMetadata.isLoadingInitialReportActions}
                                         isLoadingNewerReportActions={reportMetadata.isLoadingNewerReportActions}
@@ -504,7 +514,7 @@ function ReportScreen({
                                 {isReportReadyForDisplay ? (
                                     <ReportFooter
                                         pendingAction={addWorkspaceRoomOrChatPendingAction}
-                                        reportActions={reportActions}
+                                        reportActions={reportActionsWithAncestors}
                                         report={report}
                                         isComposerFullSize={isComposerFullSize}
                                         onSubmitComment={onSubmitComment}
