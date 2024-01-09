@@ -3943,8 +3943,14 @@ function canUserPerformWriteAction(report: OnyxEntry<Report>) {
 
 function getAncestorReportActions(reportID: string, reportActions: OnyxEntry<ReportAction>[] | null) {
     const report = getReport(reportID);
+    if(isEmptyObject(report) || isMoneyRequestReport(report) || isTaskReport(report)) {
+        return reportActions;
+    }
     if(report?.parentReportID && report?.parentReportActionID) {
         const parentReportAction = ReportActionsUtils.getReportAction(report?.parentReportID ?? '', report?.parentReportActionID ?? '');            
+        if (ReportActionsUtils.isTransactionThread(parentReportAction)) {        
+            return reportActions;
+        }
         reportActions?.push(parentReportAction);
         getAncestorReportActions(report?.parentReportID, reportActions);
     }
