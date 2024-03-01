@@ -255,7 +255,7 @@ function IOURequestStepConfirmation({
             formHasBeenSubmitted.current = true;
 
             // If we have a receipt let's start the split bill by creating only the action, the transaction, and the group DM if needed
-            if (iouType === CONST.IOU.TYPE.SPLIT && receiptFile) {
+            if (iouType === CONST.IOU.TYPE.SPLIT && receiptFile && transaction.amount === 0) {
                 IOU.startSplitBill(
                     selectedParticipants,
                     currentUserPersonalDetails.login,
@@ -286,6 +286,7 @@ function IOURequestStepConfirmation({
                     transaction.tag,
                     report.reportID,
                     transaction.billable,
+                    receiptFile,
                 );
                 return;
             }
@@ -304,6 +305,7 @@ function IOURequestStepConfirmation({
                     transaction.category,
                     transaction.tag,
                     transaction.billable,
+                    receiptFile,
                 );
                 return;
             }
